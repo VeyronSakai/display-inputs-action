@@ -3,7 +3,6 @@
  */
 import { DisplayInputsUseCase } from '../../src/use-cases/displayInputsUseCase.js'
 import { InputRepositoryImpl } from '../../src/infrastructures/repositories/inputRepositoryImpl.js'
-import { WorkflowRepositoryImpl } from '../../src/infrastructures/repositories/workflowRepositoryImpl.js'
 import { SpyJobSummaryRepository } from '../test-doubles/repositories/spyJobSummaryRepository.js'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -13,6 +12,23 @@ import type { WorkflowInfo } from '../../src/domains/value-objects/workflowInfo.
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+interface WorkflowYaml {
+  on?: {
+    workflow_dispatch?: {
+      inputs?: Record<
+        string,
+        {
+          description?: string
+          required?: boolean
+          type?: string
+          default?: string | boolean | number
+          options?: string[]
+        }
+      >
+    }
+  }
+}
 
 describe('Workflow Integration Tests', () => {
   let jobSummaryRepository: SpyJobSummaryRepository
@@ -33,7 +49,7 @@ describe('Workflow Integration Tests', () => {
     it('should correctly parse and process test-with-inputs.yml workflow', () => {
       const workflowPath = path.join(__dirname, '../../.github/workflows/test-with-inputs.yml')
       const workflowContent = fs.readFileSync(workflowPath, 'utf-8')
-      const parsedWorkflow = yaml.load(workflowContent) as any
+      const parsedWorkflow = yaml.load(workflowContent) as WorkflowYaml
 
       // Verify workflow has expected inputs
       expect(parsedWorkflow.on?.workflow_dispatch?.inputs).toBeDefined()
@@ -72,14 +88,12 @@ describe('Workflow Integration Tests', () => {
     it('should correctly parse test-without-inputs.yml workflow', () => {
       const workflowPath = path.join(__dirname, '../../.github/workflows/test-without-inputs.yml')
       const workflowContent = fs.readFileSync(workflowPath, 'utf-8')
-      const parsedWorkflow = yaml.load(workflowContent) as any
+      const parsedWorkflow = yaml.load(workflowContent) as WorkflowYaml
 
       // Verify workflow has workflow_dispatch but no inputs
       expect(parsedWorkflow.on?.workflow_dispatch).toBeDefined()
       // workflow_dispatch can be null or have no inputs property
-      if (parsedWorkflow.on.workflow_dispatch !== null) {
-        expect(parsedWorkflow.on.workflow_dispatch.inputs).toBeUndefined()
-      }
+      expect(parsedWorkflow.on?.workflow_dispatch?.inputs).toBeUndefined()
     })
 
     it('should handle workflow with inputs using actual repository implementations', async () => {
@@ -96,7 +110,7 @@ describe('Workflow Integration Tests', () => {
       // Parse the actual workflow file
       const workflowPath = path.join(__dirname, '../../.github/workflows/test-with-inputs.yml')
       const workflowContent = fs.readFileSync(workflowPath, 'utf-8')
-      const parsedWorkflow = yaml.load(workflowContent) as any
+      const parsedWorkflow = yaml.load(workflowContent) as WorkflowYaml
 
       const workflowInfo: WorkflowInfo = {
         owner: 'owner',
@@ -104,7 +118,7 @@ describe('Workflow Integration Tests', () => {
         workflowFileName: 'test-with-inputs.yml',
         ref: 'main',
         inputs: new Map(
-          Object.entries(parsedWorkflow.on.workflow_dispatch.inputs).map(([key, value]: [string, any]) => [
+          Object.entries(parsedWorkflow.on?.workflow_dispatch?.inputs || {}).map(([key, value]) => [
             key,
             {
               description: value.description,
