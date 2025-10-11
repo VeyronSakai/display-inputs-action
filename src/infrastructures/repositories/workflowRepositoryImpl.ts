@@ -31,17 +31,21 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
     try {
       const workflowRef = process.env.GITHUB_WORKFLOW_REF
       if (!workflowRef) {
+        console.error('GITHUB_WORKFLOW_REF environment variable is not set')
         return null
       }
 
       // GITHUB_WORKFLOW_REF format: owner/repo/.github/workflows/workflow.yml@refs/heads/branch
       const match = workflowRef.match(/([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/)
       if (!match) {
+        console.error(`Invalid GITHUB_WORKFLOW_REF format: ${workflowRef}`)
         return null
       }
 
       const [, owner, repo, workflowFileName, ref] = match
       const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '')
+
+      console.log(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`)
 
       // Get workflow file from GitHub API
       const octokit = github.getOctokit(this.token)
@@ -54,6 +58,7 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
 
       // Extract content from response
       if (!('content' in response.data)) {
+        console.error('No content found in GitHub API response')
         return null
       }
 
@@ -69,8 +74,13 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
         ref: refName,
         inputs
       }
-    } catch {
-      // Return null if an error occurs
+    } catch (error) {
+      // Log error details for debugging
+      console.error('Error fetching workflow info:', error)
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
       return null
     }
   }
@@ -94,8 +104,9 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
       }
 
       return inputMap
-    } catch {
-      // Return empty Map if parse error occurs
+    } catch (error) {
+      // Log parse error for debugging
+      console.error('Error parsing workflow YAML:', error)
       return new Map()
     }
   }
