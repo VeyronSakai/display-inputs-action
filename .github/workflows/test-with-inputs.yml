@@ -49,7 +49,8 @@ jobs:
     steps:
       - name: Display workflow inputs
         id: display-inputs
-        uses: ./
+        # zizmor: ignore[unpinned-uses]
+        uses: VeyronSakai/display-inputs-action@main
 
       - name: Print inputs
         id: print-inputs

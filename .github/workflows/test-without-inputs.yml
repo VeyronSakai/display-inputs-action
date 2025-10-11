@@ -1,9 +1,10 @@
 name: Test Workflow without Inputs
-permissions:
-  contents: read
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -12,3 +13,8 @@ jobs:
       - name: Test step
         id: test-step
         run: echo "This workflow has no inputs"
+
+      - name: Display workflow inputs
+        id: display-inputs
+        # zizmor: ignore[unpinned-uses]
+        uses: VeyronSakai/display-inputs-action@main
