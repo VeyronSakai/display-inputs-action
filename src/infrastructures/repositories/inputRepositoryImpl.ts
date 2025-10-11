@@ -16,19 +16,32 @@ export class InputRepositoryImpl implements IInputRepository {
   fetchInputs(): InputInfo[] {
     const inputs: InputInfo[] = []
 
+    // Debug: Log all INPUT_ environment variables
+    console.log('=== Debug: Environment Variables ===')
+    for (const [key, value] of Object.entries(process.env)) {
+      if (key.startsWith('INPUT_')) {
+        console.log(`${key}: ${value}`)
+      }
+    }
+    console.log('=== End Environment Variables ===')
+
     // Iterate through workflow input definitions (these have correct names)
     for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
       // Convert input name to environment variable name
       const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`
+      console.log(`Looking for input "${inputName}" as env var "${envVarName}"`)
       const value = process.env[envVarName]
 
       // Only include inputs that have values
       if (value !== undefined) {
+        console.log(`  Found value: ${value}`)
         inputs.push({
           name: inputName,
           value: value,
           description: inputDef.description || inputName
         })
+      } else {
+        console.log(`  No value found`)
       }
     }
 
