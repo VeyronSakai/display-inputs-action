@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
 import { WorkflowInfo } from '@domains/value-objects/workflowInfo.js'
@@ -45,7 +46,7 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
       const [, owner, repo, workflowFileName, ref] = match
       const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '')
 
-      console.log(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`)
+      core.debug(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`)
 
       // Get workflow file from GitHub API
       const octokit = github.getOctokit(this.token)
@@ -90,11 +91,16 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
    */
   private parseInputDefinitions(content: string): Map<string, WorkflowInputDefinition> {
     try {
+      core.debug('=== Debug: Parsing workflow YAML ===')
       const workflow = yaml.load(content) as WorkflowDefinition
       const inputs = workflow?.on?.workflow_dispatch?.inputs || {}
 
+      core.debug(`Found workflow_dispatch inputs: ${Object.keys(inputs).length}`)
+      core.debug(`Input names: ${JSON.stringify(Object.keys(inputs))}`)
+
       const inputMap = new Map<string, WorkflowInputDefinition>()
       for (const [key, value] of Object.entries(inputs)) {
+        core.debug(`  Adding input: ${key} (${value.type || 'string'})`)
         inputMap.set(key, {
           description: value.description,
           required: value.required,
@@ -103,6 +109,7 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
         })
       }
 
+      core.debug(`=== Total inputs parsed: ${inputMap.size} ===`)
       return inputMap
     } catch (error) {
       // Log parse error for debugging

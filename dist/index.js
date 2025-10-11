@@ -27350,20 +27350,43 @@ class InputRepositoryImpl {
      */
     fetchInputs() {
         const inputs = [];
+        // Debug: Log workflow info
+        coreExports.debug('=== Debug: Workflow Info ===');
+        coreExports.debug(`Number of inputs in workflow definition: ${this.workflowInfo.inputs.size}`);
+        for (const [name, def] of this.workflowInfo.inputs.entries()) {
+            coreExports.debug(`  Input: ${name} - Description: ${def.description || 'N/A'}`);
+        }
+        coreExports.debug('=== End Workflow Info ===');
+        // Debug: Log all INPUT_ environment variables
+        coreExports.debug('=== Debug: Environment Variables ===');
+        const inputEnvVars = Object.entries(process.env).filter(([key]) => key.startsWith('INPUT_'));
+        coreExports.debug(`Found ${inputEnvVars.length} INPUT_ environment variables:`);
+        for (const [key, value] of inputEnvVars) {
+            coreExports.debug(`  ${key}: ${value}`);
+        }
+        coreExports.debug('=== End Environment Variables ===');
         // Iterate through workflow input definitions (these have correct names)
+        coreExports.debug('=== Debug: Mapping Inputs ===');
         for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
             // Convert input name to environment variable name
             const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
+            coreExports.debug(`Mapping: "${inputName}" -> "${envVarName}"`);
             const value = process.env[envVarName];
             // Only include inputs that have values
             if (value !== undefined) {
+                coreExports.debug(`  ✓ Found value: ${value}`);
                 inputs.push({
                     name: inputName,
                     value: value,
                     description: inputDef.description || inputName
                 });
             }
+            else {
+                coreExports.debug(`  ✗ No value found (undefined)`);
+            }
         }
+        coreExports.debug('=== End Mapping ===');
+        coreExports.debug(`Total inputs found: ${inputs.length}`);
         return inputs;
     }
 }
@@ -34155,7 +34178,7 @@ class WorkflowRepositoryImpl {
             }
             const [, owner, repo, workflowFileName, ref] = match;
             const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '');
-            console.log(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`);
+            coreExports.debug(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`);
             // Get workflow file from GitHub API
             const octokit = githubExports.getOctokit(this.token);
             const response = await octokit.rest.repos.getContent({
@@ -34195,10 +34218,14 @@ class WorkflowRepositoryImpl {
      */
     parseInputDefinitions(content) {
         try {
+            coreExports.debug('=== Debug: Parsing workflow YAML ===');
             const workflow = load(content);
             const inputs = workflow?.on?.workflow_dispatch?.inputs || {};
+            coreExports.debug(`Found workflow_dispatch inputs: ${Object.keys(inputs).length}`);
+            coreExports.debug(`Input names: ${JSON.stringify(Object.keys(inputs))}`);
             const inputMap = new Map();
             for (const [key, value] of Object.entries(inputs)) {
+                coreExports.debug(`  Adding input: ${key} (${value.type || 'string'})`);
                 inputMap.set(key, {
                     description: value.description,
                     required: value.required,
@@ -34206,6 +34233,7 @@ class WorkflowRepositoryImpl {
                     type: value.type
                 });
             }
+            coreExports.debug(`=== Total inputs parsed: ${inputMap.size} ===`);
             return inputMap;
         }
         catch (error) {
@@ -34260,10 +34288,15 @@ async function run() {
         const workflowRepository = new WorkflowRepositoryImpl(token);
         const jobSummaryRepository = new JobSummaryRepositoryImpl();
         // Fetch workflow info first
+        coreExports.debug('=== Debug: Fetching workflow info ===');
         const workflowInfo = await workflowRepository.fetchWorkflowInfo();
         if (!workflowInfo) {
+            coreExports.debug('WorkflowInfo is null');
             throw new Error('Failed to fetch workflow information');
         }
+        coreExports.debug(`WorkflowInfo fetched: owner=${workflowInfo.owner}, repo=${workflowInfo.repo}`);
+        coreExports.debug(`Workflow file: ${workflowInfo.workflowFileName}, ref: ${workflowInfo.ref}`);
+        coreExports.debug(`Number of inputs defined: ${workflowInfo.inputs.size}`);
         const inputRepository = new InputRepositoryImpl(workflowInfo);
         // Create Application layer use case
         const useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository);
