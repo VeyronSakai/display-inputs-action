@@ -29,8 +29,6 @@ export class DisplayInputsUseCase {
     const inputs = this.inputRepository.fetchInputs()
 
     // Save inputs to Job Summary (null if no inputs)
-    await this.jobSummaryRepository.saveInputs(
-      inputs.length === 0 ? null : inputs
-    )
+    await this.jobSummaryRepository.saveInputs(inputs.length === 0 ? null : inputs)
   }
 }

@@ -47,8 +47,7 @@ jobs:
         uses: VeyronSakai/display-inputs-action@v1
 ```
 
-This action fetches the workflow file using GitHub API, so `actions/checkout` is not required.
-The `GITHUB_TOKEN` is automatically provided.
+This action fetches the workflow file using GitHub API, so `actions/checkout` is not required. The `GITHUB_TOKEN` is automatically provided.
 
 ### Output Example
 

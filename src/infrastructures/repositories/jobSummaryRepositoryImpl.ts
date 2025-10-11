@@ -9,10 +9,7 @@ import { IJobSummaryRepository } from '@domains/repositories/jobSummaryRepositor
 export class JobSummaryRepositoryImpl implements IJobSummaryRepository {
   async saveInputs(inputs: InputInfo[] | null): Promise<void> {
     if (!inputs || inputs.length === 0) {
-      await core.summary
-        .addHeading('Workflow Inputs', 2)
-        .addRaw('No inputs provided.')
-        .write()
+      await core.summary.addHeading('Workflow Inputs', 2).addRaw('No inputs provided.').write()
 
       core.info('No workflow_dispatch inputs found.')
       return
@@ -24,10 +21,7 @@ export class JobSummaryRepositoryImpl implements IJobSummaryRepository {
       tableData.push([input.description, input.value])
     }
 
-    await core.summary
-      .addHeading('Workflow Inputs', 2)
-      .addTable(tableData)
-      .write()
+    await core.summary.addHeading('Workflow Inputs', 2).addTable(tableData).write()
 
     core.info(`Displayed ${inputs.length} input(s) in Job Summary`)
   }

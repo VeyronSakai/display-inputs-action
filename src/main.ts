@@ -16,9 +16,7 @@ export async function run(): Promise<void> {
     // Check if the workflow was triggered by workflow_dispatch
     const eventName = process.env.GITHUB_EVENT_NAME
     if (eventName !== 'workflow_dispatch') {
-      core.warning(
-        `This action is designed for workflow_dispatch events only. Current event: ${eventName}`
-      )
+      core.warning(`This action is designed for workflow_dispatch events only. Current event: ${eventName}`)
       core.info('Skipping action execution.')
       return
     }
@@ -38,11 +36,7 @@ export async function run(): Promise<void> {
     const inputRepository = new InputRepositoryImpl(workflowInfo)
 
     // Create Application layer use case
-    const useCase = new DisplayInputsUseCase(
-      inputRepository,
-      workflowRepository,
-      jobSummaryRepository
-    )
+    const useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository)
 
     // Create and execute Presentation layer handler
     const actionHandler = new ActionHandler(useCase)

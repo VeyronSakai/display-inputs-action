@@ -30,11 +30,7 @@ describe('DisplayInputsUseCase', () => {
     }
 
     // Create use case instance
-    useCase = new DisplayInputsUseCase(
-      mockInputRepository,
-      mockWorkflowRepository,
-      mockJobSummaryRepository
-    )
+    useCase = new DisplayInputsUseCase(mockInputRepository, mockWorkflowRepository, mockJobSummaryRepository)
   })
 
   afterEach(() => {

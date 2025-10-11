@@ -35,17 +35,13 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
       }
 
       // GITHUB_WORKFLOW_REF format: owner/repo/.github/workflows/workflow.yml@refs/heads/branch
-      const match = workflowRef.match(
-        /([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/
-      )
+      const match = workflowRef.match(/([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/)
       if (!match) {
         return null
       }
 
       const [, owner, repo, workflowFileName, ref] = match
-      const refName = ref
-        .replace(/^refs\/heads\//, '')
-        .replace(/^refs\/tags\//, '')
+      const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '')
 
       // Get workflow file from GitHub API
       const octokit = github.getOctokit(this.token)
@@ -61,9 +57,7 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
         return null
       }
 
-      const content = Buffer.from(response.data.content, 'base64').toString(
-        'utf-8'
-      )
+      const content = Buffer.from(response.data.content, 'base64').toString('utf-8')
 
       // Parse YAML to get input definitions
       const inputs = this.parseInputDefinitions(content)
@@ -84,9 +78,7 @@ export class WorkflowRepositoryImpl implements IWorkflowRepository {
   /**
    * Extract input definitions from workflow file content
    */
-  private parseInputDefinitions(
-    content: string
-  ): Map<string, WorkflowInputDefinition> {
+  private parseInputDefinitions(content: string): Map<string, WorkflowInputDefinition> {
     try {
       const workflow = yaml.load(content) as WorkflowDefinition
       const inputs = workflow?.on?.workflow_dispatch?.inputs || {}

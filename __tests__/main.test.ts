@@ -29,10 +29,7 @@ const { run } = await import('../src/main.js')
 // Get test-with-inputs.yml file path
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const testActionFilePath = path.join(
-  __dirname,
-  '../.github/workflows/test-with-inputs.yml'
-)
+const testActionFilePath = path.join(__dirname, '../.github/workflows/test-with-inputs.yml')
 
 describe('main.ts', () => {
   const originalEnv = process.env
@@ -61,9 +58,7 @@ describe('main.ts', () => {
 
     await run()
 
-    expect(core.warning).toHaveBeenCalledWith(
-      'This action is designed for workflow_dispatch events only. Current event: push'
-    )
+    expect(core.warning).toHaveBeenCalledWith('This action is designed for workflow_dispatch events only. Current event: push')
     expect(core.info).toHaveBeenCalledWith('Skipping action execution.')
     expect(mockGetOctokit).not.toHaveBeenCalled()
     expect(core.summary.addHeading).not.toHaveBeenCalled()
@@ -73,8 +68,7 @@ describe('main.ts', () => {
   it('Displays inputs with descriptions from test-with-inputs.yml', async () => {
     process.env.GITHUB_EVENT_NAME = 'workflow_dispatch'
     process.env.GITHUB_TOKEN = 'fake-token'
-    process.env.GITHUB_WORKFLOW_REF =
-      'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
+    process.env.GITHUB_WORKFLOW_REF = 'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
     process.env.INPUT_ENVIRONMENT = 'production'
     process.env.INPUT_VERSION = '1.2.3'
     process.env.INPUT_ENABLE_DEBUG = 'true'
