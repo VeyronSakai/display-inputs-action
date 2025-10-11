@@ -10,11 +10,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
       - name: Test step
         id: test-step
         run: echo "This workflow has no inputs"
 
       - name: Display workflow inputs
         id: display-inputs
-        # zizmor: ignore[unpinned-uses]
-        uses: VeyronSakai/display-inputs-action@main
+        uses: ./

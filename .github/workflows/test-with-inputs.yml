@@ -47,10 +47,11 @@ jobs:
   test-display-inputs:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
       - name: Display workflow inputs
         id: display-inputs
-        # zizmor: ignore[unpinned-uses]
-        uses: VeyronSakai/display-inputs-action@main
+        uses: ./
 
       - name: Print inputs
         id: print-inputs
