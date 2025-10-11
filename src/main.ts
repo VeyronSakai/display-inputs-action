@@ -31,11 +31,17 @@ export async function run(): Promise<void> {
     const jobSummaryRepository = new JobSummaryRepositoryImpl()
 
     // Fetch workflow info first
+    console.log('=== Debug: Fetching workflow info ===')
     const workflowInfo = await workflowRepository.fetchWorkflowInfo()
 
     if (!workflowInfo) {
+      console.error('WorkflowInfo is null')
       throw new Error('Failed to fetch workflow information')
     }
+
+    console.log(`WorkflowInfo fetched: owner=${workflowInfo.owner}, repo=${workflowInfo.repo}`)
+    console.log(`Workflow file: ${workflowInfo.workflowFileName}, ref: ${workflowInfo.ref}`)
+    console.log(`Number of inputs defined: ${workflowInfo.inputs.size}`)
 
     const inputRepository = new InputRepositoryImpl(workflowInfo)
 

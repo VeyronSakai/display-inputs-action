@@ -27350,23 +27350,31 @@ class InputRepositoryImpl {
      */
     fetchInputs() {
         const inputs = [];
+        // Debug: Log workflow info
+        console.log('=== Debug: Workflow Info ===');
+        console.log(`Number of inputs in workflow definition: ${this.workflowInfo.inputs.size}`);
+        for (const [name, def] of this.workflowInfo.inputs.entries()) {
+            console.log(`  Input: ${name} - Description: ${def.description || 'N/A'}`);
+        }
+        console.log('=== End Workflow Info ===');
         // Debug: Log all INPUT_ environment variables
         console.log('=== Debug: Environment Variables ===');
-        for (const [key, value] of Object.entries(process.env)) {
-            if (key.startsWith('INPUT_')) {
-                console.log(`${key}: ${value}`);
-            }
+        const inputEnvVars = Object.entries(process.env).filter(([key]) => key.startsWith('INPUT_'));
+        console.log(`Found ${inputEnvVars.length} INPUT_ environment variables:`);
+        for (const [key, value] of inputEnvVars) {
+            console.log(`  ${key}: ${value}`);
         }
         console.log('=== End Environment Variables ===');
         // Iterate through workflow input definitions (these have correct names)
+        console.log('=== Debug: Mapping Inputs ===');
         for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
             // Convert input name to environment variable name
             const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
-            console.log(`Looking for input "${inputName}" as env var "${envVarName}"`);
+            console.log(`Mapping: "${inputName}" -> "${envVarName}"`);
             const value = process.env[envVarName];
             // Only include inputs that have values
             if (value !== undefined) {
-                console.log(`  Found value: ${value}`);
+                console.log(`  ✓ Found value: ${value}`);
                 inputs.push({
                     name: inputName,
                     value: value,
@@ -27374,9 +27382,11 @@ class InputRepositoryImpl {
                 });
             }
             else {
-                console.log(`  No value found`);
+                console.log(`  ✗ No value found (undefined)`);
             }
         }
+        console.log('=== End Mapping ===');
+        console.log(`Total inputs found: ${inputs.length}`);
         return inputs;
     }
 }
@@ -34208,10 +34218,14 @@ class WorkflowRepositoryImpl {
      */
     parseInputDefinitions(content) {
         try {
+            console.log('=== Debug: Parsing workflow YAML ===');
             const workflow = load(content);
             const inputs = workflow?.on?.workflow_dispatch?.inputs || {};
+            console.log(`Found workflow_dispatch inputs: ${Object.keys(inputs).length}`);
+            console.log('Input names:', Object.keys(inputs));
             const inputMap = new Map();
             for (const [key, value] of Object.entries(inputs)) {
+                console.log(`  Adding input: ${key} (${value.type || 'string'})`);
                 inputMap.set(key, {
                     description: value.description,
                     required: value.required,
@@ -34219,6 +34233,7 @@ class WorkflowRepositoryImpl {
                     type: value.type
                 });
             }
+            console.log(`=== Total inputs parsed: ${inputMap.size} ===`);
             return inputMap;
         }
         catch (error) {
@@ -34273,10 +34288,15 @@ async function run() {
         const workflowRepository = new WorkflowRepositoryImpl(token);
         const jobSummaryRepository = new JobSummaryRepositoryImpl();
         // Fetch workflow info first
+        console.log('=== Debug: Fetching workflow info ===');
         const workflowInfo = await workflowRepository.fetchWorkflowInfo();
         if (!workflowInfo) {
+            console.error('WorkflowInfo is null');
             throw new Error('Failed to fetch workflow information');
         }
+        console.log(`WorkflowInfo fetched: owner=${workflowInfo.owner}, repo=${workflowInfo.repo}`);
+        console.log(`Workflow file: ${workflowInfo.workflowFileName}, ref: ${workflowInfo.ref}`);
+        console.log(`Number of inputs defined: ${workflowInfo.inputs.size}`);
         const inputRepository = new InputRepositoryImpl(workflowInfo);
         // Create Application layer use case
         const useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository);

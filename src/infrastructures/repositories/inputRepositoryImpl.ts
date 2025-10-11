@@ -16,34 +16,45 @@ export class InputRepositoryImpl implements IInputRepository {
   fetchInputs(): InputInfo[] {
     const inputs: InputInfo[] = []
 
+    // Debug: Log workflow info
+    console.log('=== Debug: Workflow Info ===')
+    console.log(`Number of inputs in workflow definition: ${this.workflowInfo.inputs.size}`)
+    for (const [name, def] of this.workflowInfo.inputs.entries()) {
+      console.log(`  Input: ${name} - Description: ${def.description || 'N/A'}`)
+    }
+    console.log('=== End Workflow Info ===')
+
     // Debug: Log all INPUT_ environment variables
     console.log('=== Debug: Environment Variables ===')
-    for (const [key, value] of Object.entries(process.env)) {
-      if (key.startsWith('INPUT_')) {
-        console.log(`${key}: ${value}`)
-      }
+    const inputEnvVars = Object.entries(process.env).filter(([key]) => key.startsWith('INPUT_'))
+    console.log(`Found ${inputEnvVars.length} INPUT_ environment variables:`)
+    for (const [key, value] of inputEnvVars) {
+      console.log(`  ${key}: ${value}`)
     }
     console.log('=== End Environment Variables ===')
 
     // Iterate through workflow input definitions (these have correct names)
+    console.log('=== Debug: Mapping Inputs ===')
     for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
       // Convert input name to environment variable name
       const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`
-      console.log(`Looking for input "${inputName}" as env var "${envVarName}"`)
+      console.log(`Mapping: "${inputName}" -> "${envVarName}"`)
       const value = process.env[envVarName]
 
       // Only include inputs that have values
       if (value !== undefined) {
-        console.log(`  Found value: ${value}`)
+        console.log(`  ✓ Found value: ${value}`)
         inputs.push({
           name: inputName,
           value: value,
           description: inputDef.description || inputName
         })
       } else {
-        console.log(`  No value found`)
+        console.log(`  ✗ No value found (undefined)`)
       }
     }
+    console.log('=== End Mapping ===')
+    console.log(`Total inputs found: ${inputs.length}`)
 
     return inputs
   }
