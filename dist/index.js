@@ -27319,59 +27319,48 @@ class DisplayInputsUseCase {
         this.jobSummaryRepository = jobSummaryRepository;
     }
     /**
-     * Execute the use case: fetch inputs, enrich with descriptions, and save to Job Summary
+     * Execute the use case: fetch inputs and save to Job Summary
      */
     async execute() {
-        // Fetch input information from environment variables
-        const rawInputs = this.inputRepository.fetchInputs();
-        // Handle case with no inputs
-        if (rawInputs.length === 0) {
+        // Fetch workflow information to get correct input names
+        const workflowInfo = await this.workflowRepository.fetchWorkflowInfo();
+        if (!workflowInfo) {
             await this.jobSummaryRepository.saveInputs(null);
             return;
         }
-        // Fetch workflow information and enrich inputs with descriptions
-        const workflowInfo = await this.workflowRepository.fetchWorkflowInfo();
-        const enrichedInputs = this.enrichInputsWithDescriptions(rawInputs, workflowInfo);
-        // Save enriched inputs to Job Summary
-        await this.jobSummaryRepository.saveInputs(enrichedInputs);
-    }
-    /**
-     * Enrich input information with descriptions from workflow definition
-     */
-    enrichInputsWithDescriptions(inputs, workflowInfo) {
-        if (!workflowInfo) {
-            // If workflow info cannot be fetched, return inputs as-is
-            return inputs;
-        }
-        return inputs.map((input) => {
-            const description = workflowInfo.inputs.get(input.name)?.description || input.name;
-            return {
-                name: input.name,
-                value: input.value,
-                description: description
-            };
-        });
+        // Fetch inputs using workflow definition
+        const inputs = this.inputRepository.fetchInputs();
+        // Save inputs to Job Summary (null if no inputs)
+        await this.jobSummaryRepository.saveInputs(inputs.length === 0 ? null : inputs);
     }
 }
 
 /**
- * Infrastructure: Environment Input Repository
- * Concrete implementation for retrieving input information from INPUT_* environment variables
+ * Repository for fetching inputs from workflow definition
+ * Uses workflow definition as the source of truth for input names
  */
-class EnvironmentInputRepository {
+class WorkflowInputRepository {
+    workflowInfo;
+    constructor(workflowInfo) {
+        this.workflowInfo = workflowInfo;
+    }
+    /**
+     * Fetch inputs using correct names from workflow definition
+     * Converts input names to environment variable names and retrieves values
+     */
     fetchInputs() {
         const inputs = [];
-        const inputPrefix = 'INPUT_';
-        for (const [key, value] of Object.entries(process.env)) {
-            if (key.startsWith(inputPrefix) && value !== undefined) {
-                const inputName = key
-                    .slice(inputPrefix.length)
-                    .toLowerCase()
-                    .replace(/_/g, '-');
+        // Iterate through workflow input definitions (these have correct names)
+        for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
+            // Convert input name to environment variable name
+            const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
+            const value = process.env[envVarName];
+            // Only include inputs that have values
+            if (value !== undefined) {
                 inputs.push({
                     name: inputName,
                     value: value,
-                    description: inputName
+                    description: inputDef.description || inputName
                 });
             }
         }
@@ -34261,11 +34250,16 @@ class JobSummaryRepository {
 async function run() {
     try {
         // Create Infrastructure layer instances
-        const inputRepository = new EnvironmentInputRepository();
         const parser = new WorkflowFileParser();
         const token = process.env.GITHUB_TOKEN || '';
         const workflowRepository = new GitHubApiWorkflowRepository(token, parser);
         const jobSummaryRepository = new JobSummaryRepository();
+        // Fetch workflow info first
+        const workflowInfo = await workflowRepository.fetchWorkflowInfo();
+        if (!workflowInfo) {
+            throw new Error('Failed to fetch workflow information');
+        }
+        const inputRepository = new WorkflowInputRepository(workflowInfo);
         // Create Application layer use case
         const useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository);
         // Create and execute Presentation layer handler

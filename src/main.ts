@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import { ActionHandler } from '@presentations/actionHandler.js'
 import { DisplayInputsUseCase } from '@use-cases/DisplayInputsUseCase.js'
-import { EnvironmentInputRepository } from '@infrastructures/repositories/EnvironmentInputRepository.js'
+import { WorkflowInputRepository } from '@infrastructures/repositories/WorkflowInputRepository.js'
 import { GitHubApiWorkflowRepository } from '@infrastructures/repositories/GitHubApiWorkflowRepository.js'
 import { WorkflowFileParser } from '@infrastructures/parsers/WorkflowFileParser.js'
 import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRepository.js'
@@ -15,11 +15,19 @@ import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRe
 export async function run(): Promise<void> {
   try {
     // Create Infrastructure layer instances
-    const inputRepository = new EnvironmentInputRepository()
     const parser = new WorkflowFileParser()
     const token = process.env.GITHUB_TOKEN || ''
     const workflowRepository = new GitHubApiWorkflowRepository(token, parser)
     const jobSummaryRepository = new JobSummaryRepository()
+
+    // Fetch workflow info first
+    const workflowInfo = await workflowRepository.fetchWorkflowInfo()
+
+    if (!workflowInfo) {
+      throw new Error('Failed to fetch workflow information')
+    }
+
+    const inputRepository = new WorkflowInputRepository(workflowInfo)
 
     // Create Application layer use case
     const useCase = new DisplayInputsUseCase(

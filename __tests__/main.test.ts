@@ -105,8 +105,8 @@ describe('main.ts', () => {
     )
   })
 
-  it('Falls back to input names when GitHub API fails', async () => {
-    // Set up some mock inputs without valid API response
+  it('Throws error when GitHub API fails', async () => {
+    // Set up environment
     process.env.INPUT_NAME = 'test-user'
     process.env.INPUT_ENVIRONMENT = 'production'
     process.env.GITHUB_TOKEN = 'fake-token'
@@ -118,18 +118,26 @@ describe('main.ts', () => {
 
     await run()
 
-    // Verify that summary uses input names as descriptions
-    expect(core.summary.addHeading).toHaveBeenCalledWith('Workflow Inputs', 2)
-    expect(core.summary.addTable).toHaveBeenCalledWith([
-      ['Description', 'Value'],
-      ['name', 'test-user'],
-      ['environment', 'production']
-    ])
-    expect(core.summary.write).toHaveBeenCalled()
+    // Verify that the action was marked as failed
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'Failed to fetch workflow information'
+    )
   })
 
   it('Handles case with no inputs', async () => {
+    // Set up environment with token but no inputs
+    process.env.GITHUB_TOKEN = 'fake-token'
+    process.env.GITHUB_WORKFLOW_REF =
+      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
     // No INPUT_ environment variables set
+
+    // Mock GitHub API response with test-action.yml content
+    mockGetContent.mockResolvedValue({
+      data: {
+        content: Buffer.from(testActionContent).toString('base64')
+      }
+    })
+
     await run()
 
     // Verify that appropriate message was displayed
@@ -140,6 +148,18 @@ describe('main.ts', () => {
   })
 
   it('Handles errors gracefully', async () => {
+    // Set up environment
+    process.env.GITHUB_TOKEN = 'fake-token'
+    process.env.GITHUB_WORKFLOW_REF =
+      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
+
+    // Mock GitHub API response
+    mockGetContent.mockResolvedValue({
+      data: {
+        content: Buffer.from(testActionContent).toString('base64')
+      }
+    })
+
     // Mock write to throw an error
     core.summary.write.mockRejectedValueOnce(
       new Error('Failed to write summary')
@@ -151,31 +171,29 @@ describe('main.ts', () => {
     expect(core.setFailed).toHaveBeenCalledWith('Failed to write summary')
   })
 
-  it('Works without GITHUB_TOKEN (uses input names)', async () => {
+  it('Throws error without GITHUB_TOKEN', async () => {
     // Set up inputs without token
     process.env.INPUT_TEST = 'value'
     // No GITHUB_TOKEN set
 
     await run()
 
-    // Should fall back to using input name as description
-    expect(core.summary.addTable).toHaveBeenCalledWith([
-      ['Description', 'Value'],
-      ['test', 'value']
-    ])
+    // Should fail because workflow info cannot be fetched
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'Failed to fetch workflow information'
+    )
   })
 
-  it('Handles invalid GITHUB_WORKFLOW_REF', async () => {
+  it('Throws error with invalid GITHUB_WORKFLOW_REF', async () => {
     process.env.GITHUB_TOKEN = 'fake-token'
     process.env.GITHUB_WORKFLOW_REF = 'invalid-format'
     process.env.INPUT_TEST = 'value'
 
     await run()
 
-    // Should fall back to using input name as description
-    expect(core.summary.addTable).toHaveBeenCalledWith([
-      ['Description', 'Value'],
-      ['test', 'value']
-    ])
+    // Should fail because workflow info cannot be fetched
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'Failed to fetch workflow information'
+    )
   })
 })
