@@ -58,10 +58,16 @@ jobs:
 
       - name: Print inputs
         id: print-inputs
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          VERSION: ${{ inputs.version }}
+          ENABLE_DEBUG: ${{ inputs.enable-debug }}
+          LOG_LEVEL: ${{ inputs.log-level }}
+          NOTES: ${{ inputs.notes }}
         run: |
           Write-Host "=== Workflow Inputs ==="
-          Write-Host "Environment: ${{ inputs.environment }}"
-          Write-Host "Version: ${{ inputs.version }}"
-          Write-Host "Enable Debug: ${{ inputs.enable-debug }}"
-          Write-Host "Log Level: ${{ inputs.log-level }}"
-          Write-Host "Notes: ${{ inputs.notes }}"
+          Write-Host "Environment: $env:ENVIRONMENT"
+          Write-Host "Version: $env:VERSION"
+          Write-Host "Enable Debug: $env:ENABLE_DEBUG"
+          Write-Host "Log Level: $env:LOG_LEVEL"
+          Write-Host "Notes: $env:NOTES"
