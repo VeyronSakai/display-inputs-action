@@ -27281,7 +27281,7 @@ var coreExports = requireCore();
 
 /**
  * Presentation Layer: GitHub Actions Handler
- * GitHub Actions との連携を担当
+ * Responsible for integration with GitHub Actions.
  */
 class ActionHandler {
     useCase;
