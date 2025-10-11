@@ -103,11 +103,11 @@ describe('Workflow Integration Tests', () => {
 
       const eventPayload = {
         inputs: {
-          'environment': 'production',
-          'version': '2.0.1',
+          environment: 'production',
+          version: '2.0.1',
           'enable-debug': 'true',
           'log-level': 'debug',
-          'notes': 'Test deployment'
+          notes: 'Test deployment'
         }
       }
 
