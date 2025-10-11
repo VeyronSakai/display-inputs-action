@@ -11,6 +11,12 @@ A GitHub Action to display workflow_dispatch input values in a table format on G
 - Displays inputs in an easy-to-read table format on Job Summary
 - No `actions/checkout` required - fetches files via GitHub API
 
+---
+
+<img width="929" height="782" alt="スクリーンショット 2025-10-11 23 30 04" src="https://github.com/user-attachments/assets/3144b51e-26ed-4c38-99ce-7b09ce1c1a44" />
+
+---
+
 ## Usage
 
 ### Basic Example
