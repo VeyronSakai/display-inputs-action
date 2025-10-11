@@ -1,17 +1,31 @@
 import * as github from '@actions/github'
+import * as yaml from 'js-yaml'
 import { WorkflowInfo } from '@domains/value-objects/WorkflowInfo.js'
+import { WorkflowInputDefinition } from '@domains/value-objects/WorkflowInputDefinition.js'
 import { IWorkflowRepository } from '@domains/repositories/IWorkflowRepository.js'
-import { WorkflowFileParser } from '@infrastructures/parsers/WorkflowFileParser.js'
+
+type WorkflowDefinition = {
+  on?: {
+    workflow_dispatch?: {
+      inputs?: Record<
+        string,
+        {
+          description?: string
+          required?: boolean
+          default?: string | boolean
+          type?: string
+        }
+      >
+    }
+  }
+}
 
 /**
  * Infrastructure: GitHub API Workflow Repository
  * Concrete implementation for retrieving workflow information using GitHub API
  */
 export class GitHubApiWorkflowRepository implements IWorkflowRepository {
-  constructor(
-    private readonly token: string,
-    private readonly parser: WorkflowFileParser
-  ) {}
+  constructor(private readonly token: string) {}
 
   async fetchWorkflowInfo(): Promise<WorkflowInfo | null> {
     try {
@@ -50,7 +64,7 @@ export class GitHubApiWorkflowRepository implements IWorkflowRepository {
       )
 
       // Parse YAML to get input definitions
-      const inputs = this.parser.parseInputDefinitions(content)
+      const inputs = this.parseInputDefinitions(content)
 
       return {
         owner,
@@ -62,6 +76,33 @@ export class GitHubApiWorkflowRepository implements IWorkflowRepository {
     } catch {
       // Return null if an error occurs
       return null
+    }
+  }
+
+  /**
+   * Extract input definitions from workflow file content
+   */
+  private parseInputDefinitions(
+    content: string
+  ): Map<string, WorkflowInputDefinition> {
+    try {
+      const workflow = yaml.load(content) as WorkflowDefinition
+      const inputs = workflow?.on?.workflow_dispatch?.inputs || {}
+
+      const inputMap = new Map<string, WorkflowInputDefinition>()
+      for (const [key, value] of Object.entries(inputs)) {
+        inputMap.set(key, {
+          description: value.description,
+          required: value.required,
+          defaultValue: value.default,
+          type: value.type
+        })
+      }
+
+      return inputMap
+    } catch {
+      // Return empty Map if parse error occurs
+      return new Map()
     }
   }
 }

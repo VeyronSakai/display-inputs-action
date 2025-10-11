@@ -3,7 +3,6 @@ import { ActionHandler } from '@presentations/actionHandler.js'
 import { DisplayInputsUseCase } from '@use-cases/DisplayInputsUseCase.js'
 import { WorkflowInputRepository } from '@infrastructures/repositories/WorkflowInputRepository.js'
 import { GitHubApiWorkflowRepository } from '@infrastructures/repositories/GitHubApiWorkflowRepository.js'
-import { WorkflowFileParser } from '@infrastructures/parsers/WorkflowFileParser.js'
 import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRepository.js'
 
 /**
@@ -15,9 +14,8 @@ import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRe
 export async function run(): Promise<void> {
   try {
     // Create Infrastructure layer instances
-    const parser = new WorkflowFileParser()
     const token = process.env.GITHUB_TOKEN || ''
-    const workflowRepository = new GitHubApiWorkflowRepository(token, parser)
+    const workflowRepository = new GitHubApiWorkflowRepository(token)
     const jobSummaryRepository = new JobSummaryRepository()
 
     // Fetch workflow info first

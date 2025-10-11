@@ -31330,60 +31330,6 @@ function requireGithub () {
 
 var githubExports = requireGithub();
 
-/**
- * Infrastructure: GitHub API Workflow Repository
- * Concrete implementation for retrieving workflow information using GitHub API
- */
-class GitHubApiWorkflowRepository {
-    token;
-    parser;
-    constructor(token, parser) {
-        this.token = token;
-        this.parser = parser;
-    }
-    async fetchWorkflowInfo() {
-        try {
-            const workflowRef = process.env.GITHUB_WORKFLOW_REF;
-            if (!workflowRef) {
-                return null;
-            }
-            // GITHUB_WORKFLOW_REF format: owner/repo/.github/workflows/workflow.yml@refs/heads/branch
-            const match = workflowRef.match(/([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/);
-            if (!match) {
-                return null;
-            }
-            const [, owner, repo, workflowFileName, ref] = match;
-            const refName = ref.replace('refs/heads/', '').replace('refs/tags/', '');
-            // Get workflow file from GitHub API
-            const octokit = githubExports.getOctokit(this.token);
-            const response = await octokit.rest.repos.getContent({
-                owner,
-                repo,
-                path: `.github/workflows/${workflowFileName}`,
-                ref: refName
-            });
-            // Extract content from response
-            if (!('content' in response.data)) {
-                return null;
-            }
-            const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-            // Parse YAML to get input definitions
-            const inputs = this.parser.parseInputDefinitions(content);
-            return {
-                owner,
-                repo,
-                workflowFileName,
-                ref: refName,
-                inputs
-            };
-        }
-        catch {
-            // Return null if an error occurs
-            return null;
-        }
-    }
-}
-
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
 function isNothing(subject) {
   return (typeof subject === 'undefined') || (subject === null);
@@ -34186,10 +34132,55 @@ var loader = {
 var load                = loader.load;
 
 /**
- * Infrastructure: Workflow File Parser
- * Parses workflow files in YAML format
+ * Infrastructure: GitHub API Workflow Repository
+ * Concrete implementation for retrieving workflow information using GitHub API
  */
-class WorkflowFileParser {
+class GitHubApiWorkflowRepository {
+    token;
+    constructor(token) {
+        this.token = token;
+    }
+    async fetchWorkflowInfo() {
+        try {
+            const workflowRef = process.env.GITHUB_WORKFLOW_REF;
+            if (!workflowRef) {
+                return null;
+            }
+            // GITHUB_WORKFLOW_REF format: owner/repo/.github/workflows/workflow.yml@refs/heads/branch
+            const match = workflowRef.match(/([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/);
+            if (!match) {
+                return null;
+            }
+            const [, owner, repo, workflowFileName, ref] = match;
+            const refName = ref.replace('refs/heads/', '').replace('refs/tags/', '');
+            // Get workflow file from GitHub API
+            const octokit = githubExports.getOctokit(this.token);
+            const response = await octokit.rest.repos.getContent({
+                owner,
+                repo,
+                path: `.github/workflows/${workflowFileName}`,
+                ref: refName
+            });
+            // Extract content from response
+            if (!('content' in response.data)) {
+                return null;
+            }
+            const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+            // Parse YAML to get input definitions
+            const inputs = this.parseInputDefinitions(content);
+            return {
+                owner,
+                repo,
+                workflowFileName,
+                ref: refName,
+                inputs
+            };
+        }
+        catch {
+            // Return null if an error occurs
+            return null;
+        }
+    }
     /**
      * Extract input definitions from workflow file content
      */
@@ -34250,9 +34241,8 @@ class JobSummaryRepository {
 async function run() {
     try {
         // Create Infrastructure layer instances
-        const parser = new WorkflowFileParser();
         const token = process.env.GITHUB_TOKEN || '';
-        const workflowRepository = new GitHubApiWorkflowRepository(token, parser);
+        const workflowRepository = new GitHubApiWorkflowRepository(token);
         const jobSummaryRepository = new JobSummaryRepository();
         // Fetch workflow info first
         const workflowInfo = await workflowRepository.fetchWorkflowInfo();
