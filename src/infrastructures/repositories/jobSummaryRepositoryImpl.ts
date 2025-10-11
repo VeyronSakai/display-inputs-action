@@ -1,12 +1,12 @@
 import * as core from '@actions/core'
 import { InputInfo } from '@domains/value-objects/inputInfo.js'
-import { IJobSummaryRepository } from '@domains/repositories/iJobSummaryRepository.js'
+import { IJobSummaryRepository } from '@domains/repositories/jobSummaryRepository.js'
 
 /**
  * Infrastructure: Job Summary Repository
  * Persists workflow input information to GitHub Actions Job Summary
  */
-export class JobSummaryRepository implements IJobSummaryRepository {
+export class JobSummaryRepositoryImpl implements IJobSummaryRepository {
   async saveInputs(inputs: InputInfo[] | null): Promise<void> {
     if (!inputs || inputs.length === 0) {
       await core.summary

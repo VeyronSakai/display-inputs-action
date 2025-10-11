@@ -27339,7 +27339,7 @@ class DisplayInputsUseCase {
  * Repository for fetching inputs from workflow definition
  * Uses workflow definition as the source of truth for input names
  */
-class WorkflowInputRepository {
+class InputRepositoryImpl {
     workflowInfo;
     constructor(workflowInfo) {
         this.workflowInfo = workflowInfo;
@@ -34135,7 +34135,7 @@ var load                = loader.load;
  * Infrastructure: GitHub API Workflow Repository
  * Concrete implementation for retrieving workflow information using GitHub API
  */
-class GitHubApiWorkflowRepository {
+class WorkflowRepositoryImpl {
     token;
     constructor(token) {
         this.token = token;
@@ -34212,7 +34212,7 @@ class GitHubApiWorkflowRepository {
  * Infrastructure: Job Summary Repository
  * Persists workflow input information to GitHub Actions Job Summary
  */
-class JobSummaryRepository {
+class JobSummaryRepositoryImpl {
     async saveInputs(inputs) {
         if (!inputs || inputs.length === 0) {
             await coreExports.summary
@@ -34244,14 +34244,14 @@ async function run() {
     try {
         // Create Infrastructure layer instances
         const token = process.env.GITHUB_TOKEN || '';
-        const workflowRepository = new GitHubApiWorkflowRepository(token);
-        const jobSummaryRepository = new JobSummaryRepository();
+        const workflowRepository = new WorkflowRepositoryImpl(token);
+        const jobSummaryRepository = new JobSummaryRepositoryImpl();
         // Fetch workflow info first
         const workflowInfo = await workflowRepository.fetchWorkflowInfo();
         if (!workflowInfo) {
             throw new Error('Failed to fetch workflow information');
         }
-        const inputRepository = new WorkflowInputRepository(workflowInfo);
+        const inputRepository = new InputRepositoryImpl(workflowInfo);
         // Create Application layer use case
         const useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository);
         // Create and execute Presentation layer handler

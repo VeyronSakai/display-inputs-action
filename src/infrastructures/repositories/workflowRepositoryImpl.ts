@@ -2,7 +2,7 @@ import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
 import { WorkflowInfo } from '@domains/value-objects/workflowInfo.js'
 import { WorkflowInputDefinition } from '@domains/value-objects/workflowInputDefinition.js'
-import { IWorkflowRepository } from '@domains/repositories/iWorkflowRepository.js'
+import { IWorkflowRepository } from '@domains/repositories/workflowRepository.js'
 
 type WorkflowDefinition = {
   on?: {
@@ -24,7 +24,7 @@ type WorkflowDefinition = {
  * Infrastructure: GitHub API Workflow Repository
  * Concrete implementation for retrieving workflow information using GitHub API
  */
-export class GitHubApiWorkflowRepository implements IWorkflowRepository {
+export class WorkflowRepositoryImpl implements IWorkflowRepository {
   constructor(private readonly token: string) {}
 
   async fetchWorkflowInfo(): Promise<WorkflowInfo | null> {

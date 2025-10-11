@@ -1,6 +1,6 @@
-import { IInputRepository } from '@domains/repositories/iInputRepository.js'
-import { IWorkflowRepository } from '@domains/repositories/iWorkflowRepository.js'
-import { IJobSummaryRepository } from '@domains/repositories/iJobSummaryRepository.js'
+import { IInputRepository } from '@domains/repositories/inputRepository.js'
+import { IWorkflowRepository } from '@domains/repositories/workflowRepository.js'
+import { IJobSummaryRepository } from '@domains/repositories/jobSummaryRepository.js'
 
 /**
  * Application Use Case: Display Workflow Inputs

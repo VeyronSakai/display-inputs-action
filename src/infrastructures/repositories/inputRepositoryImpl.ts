@@ -1,12 +1,12 @@
 import { InputInfo } from '@domains/value-objects/inputInfo.js'
 import { WorkflowInfo } from '@domains/value-objects/workflowInfo.js'
-import { IInputRepository } from '@domains/repositories/iInputRepository.js'
+import { IInputRepository } from '@domains/repositories/inputRepository.js'
 
 /**
  * Repository for fetching inputs from workflow definition
  * Uses workflow definition as the source of truth for input names
  */
-export class WorkflowInputRepository implements IInputRepository {
+export class InputRepositoryImpl implements IInputRepository {
   constructor(private readonly workflowInfo: WorkflowInfo) {}
 
   /**
