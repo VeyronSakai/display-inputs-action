@@ -103,14 +103,17 @@ describe('Workflow Integration Tests', () => {
         repo: 'repo',
         workflowFileName: 'test-with-inputs.yml',
         ref: 'main',
-        inputs: new Map(Object.entries(parsedWorkflow.on.workflow_dispatch.inputs).map(
-          ([key, value]: [string, any]) => [key, {
-            description: value.description,
-            required: value.required,
-            type: value.type,
-            default: value.default
-          }]
-        ))
+        inputs: new Map(
+          Object.entries(parsedWorkflow.on.workflow_dispatch.inputs).map(([key, value]: [string, any]) => [
+            key,
+            {
+              description: value.description,
+              required: value.required,
+              type: value.type,
+              default: value.default
+            }
+          ])
+        )
       }
 
       // Create input repository with workflow info
@@ -124,11 +127,7 @@ describe('Workflow Integration Tests', () => {
       }
 
       // Create use case with actual input repository and spy job summary repository
-      const useCase = new DisplayInputsUseCase(
-        inputRepository,
-        stubWorkflowRepo,
-        jobSummaryRepository
-      )
+      const useCase = new DisplayInputsUseCase(inputRepository, stubWorkflowRepo, jobSummaryRepository)
 
       await useCase.execute()
 
@@ -169,11 +168,7 @@ describe('Workflow Integration Tests', () => {
         }
       }
 
-      const useCase = new DisplayInputsUseCase(
-        inputRepository,
-        stubWorkflowRepo,
-        jobSummaryRepository
-      )
+      const useCase = new DisplayInputsUseCase(inputRepository, stubWorkflowRepo, jobSummaryRepository)
 
       await useCase.execute()
 

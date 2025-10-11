@@ -64,9 +64,7 @@ export class SpyJobSummaryRepository implements IJobSummaryRepository {
     return expectedInputs.every((expectedInput, index) => {
       const savedInput = this.savedInputs![index]
       return (
-        expectedInput.name === savedInput.name &&
-        expectedInput.value === savedInput.value &&
-        expectedInput.description === savedInput.description
+        expectedInput.name === savedInput.name && expectedInput.value === savedInput.value && expectedInput.description === savedInput.description
       )
     })
   }
