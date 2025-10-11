@@ -7,7 +7,7 @@ on:
     # checkov:skip=CKV_GHA_7: This is a test workflow that intentionally has inputs to test the display-inputs-action functionality
     inputs:
       environment:
-        description: 'Deployment Environment'
+        description: "Deployment Environment"
         required: true
         type: choice
         options:
@@ -16,16 +16,16 @@ on:
           - production
         default: development
       version:
-        description: 'Version Number'
+        description: "Version Number"
         required: true
         type: string
       enable-debug:
-        description: 'Enable Debug Mode'
+        description: "Enable Debug Mode"
         required: false
         type: boolean
         default: false
       log-level:
-        description: 'Log Level'
+        description: "Log Level"
         required: false
         type: choice
         options:
@@ -35,7 +35,7 @@ on:
           - debug
         default: info
       notes:
-        description: 'Additional Notes'
+        description: "Additional Notes"
         required: false
         type: string
 
@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Display workflow inputs
         id: display-inputs
-        uses: ./
+        uses: VeyronSakai/display-inputs-action@main
 
       - name: Print inputs
         id: print-inputs
