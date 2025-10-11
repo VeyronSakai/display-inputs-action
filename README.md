@@ -1,227 +1,199 @@
-# Create a GitHub Action Using TypeScript
+# Display Inputs Action
 
-Use this template to bootstrap the creation of a TypeScript action. :rocket:
+[![CI](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml/badge.svg)](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml)
+[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
+workflow_dispatch で実行された GitHub
+Actions ワークフローの入力値を、GitHub の Job
+Summary にテーブル形式で表示する TypeScript ベースの Action です。
 
-If you are new, there's also a simpler introduction in the
-[Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
+## 機能
 
-## Create Your Own Action
+- workflow_dispatch の inputs を自動的に取得
+- GitHub API を使用してワークフローファイルから description を取得
+- Job Summary に見やすいテーブル形式で表示
+- 入力が無い場合の適切なメッセージ表示
+- TypeScript で実装され、完全にテスト済み
+- `actions/checkout` 不要 - GitHub API を使用してファイルを取得
 
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
+## 使用方法
 
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
-
-> [!IMPORTANT]
->
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
-> details on how to use this file, see
-> [About code owners](https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners).
-
-## Initial Setup
-
-After you've cloned the repository to your local machine or codespace, you'll
-need to perform some initial setup steps before you can develop your action.
-
-> [!NOTE]
->
-> You'll need to have a reasonably modern version of
-> [Node.js](https://nodejs.org) handy (20.x or later should work!). If you are
-> using a version manager like [`nodenv`](https://github.com/nodenv/nodenv) or
-> [`fnm`](https://github.com/Schniz/fnm), this template has a `.node-version`
-> file at the root of the repository that can be used to automatically switch to
-> the correct version when you `cd` into the repository. Additionally, this
-> `.node-version` file is used by GitHub Actions in any `actions/setup-node`
-> actions.
-
-1. :hammer_and_wrench: Install the dependencies
-
-   ```bash
-   npm install
-   ```
-
-1. :building_construction: Package the TypeScript for distribution
-
-   ```bash
-   npm run bundle
-   ```
-
-1. :white_check_mark: Run the tests
-
-   ```bash
-   $ npm test
-
-   PASS  ./index.test.js
-     ✓ throws invalid number (3ms)
-     ✓ wait 500 ms (504ms)
-     ✓ test runs (95ms)
-
-   ...
-   ```
-
-## Update the Action Metadata
-
-The [`action.yml`](action.yml) file defines metadata about your action, such as
-input(s) and output(s). For details about this file, see
-[Metadata syntax for GitHub Actions](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions).
-
-When you copy this repository, update `action.yml` with the name, description,
-inputs, and outputs for your action.
-
-## Update the Action Code
-
-The [`src/`](./src/) directory is the heart of your action! This contains the
-source code that will be run when your action is invoked. You can replace the
-contents of this directory with your own code.
-
-There are a few things to keep in mind when writing your action code:
-
-- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously.
-  In `main.ts`, you will see that the action is run in an `async` function.
-
-  ```javascript
-  import * as core from '@actions/core'
-  //...
-
-  async function run() {
-    try {
-      //...
-    } catch (error) {
-      core.setFailed(error.message)
-    }
-  }
-  ```
-
-  For more information about the GitHub Actions toolkit, see the
-  [documentation](https://github.com/actions/toolkit/blob/master/README.md).
-
-So, what are you waiting for? Go ahead and start customizing your action!
-
-1. Create a new branch
-
-   ```bash
-   git checkout -b releases/v1
-   ```
-
-1. Replace the contents of `src/` with your action code
-1. Add tests to `__tests__/` for your source code
-1. Format, test, and build the action
-
-   ```bash
-   npm run all
-   ```
-
-   > This step is important! It will run [`rollup`](https://rollupjs.org/) to
-   > build the final JavaScript action code with all dependencies included. If
-   > you do not run this step, your action will not work correctly when it is
-   > used in a workflow.
-
-1. (Optional) Test your action locally
-
-   The [`@github/local-action`](https://github.com/github/local-action) utility
-   can be used to test your action locally. It is a simple command-line tool
-   that "stubs" (or simulates) the GitHub Actions Toolkit. This way, you can run
-   your TypeScript action locally without having to commit and push your changes
-   to a repository.
-
-   The `local-action` utility can be run in the following ways:
-   - Visual Studio Code Debugger
-
-     Make sure to review and, if needed, update
-     [`.vscode/launch.json`](./.vscode/launch.json)
-
-   - Terminal/Command Prompt
-
-     ```bash
-     # npx @github/local action <action-yaml-path> <entrypoint> <dotenv-file>
-     npx @github/local-action . src/main.ts .env
-     ```
-
-   You can provide a `.env` file to the `local-action` CLI to set environment
-   variables used by the GitHub Actions Toolkit. For example, setting inputs and
-   event payload data used by your action. For more information, see the example
-   file, [`.env.example`](./.env.example), and the
-   [GitHub Actions Documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
-
-1. Commit your changes
-
-   ```bash
-   git add .
-   git commit -m "My first action is ready!"
-   ```
-
-1. Push them to your repository
-
-   ```bash
-   git push -u origin releases/v1
-   ```
-
-1. Create a pull request and get feedback on your action
-1. Merge the pull request into the `main` branch
-
-Your action is now published! :rocket:
-
-For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-## Validate the Action
-
-You can now validate the action by referencing it in a workflow file. For
-example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
-action in the same repository.
+### 基本的な使い方
 
 ```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
+name: Display Workflow Inputs
 
-  - name: Test Local Action
-    id: test-action
-    uses: ./
-    with:
-      milliseconds: 1000
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'デプロイ環境'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      version:
+        description: 'バージョン番号'
+        required: true
+        type: string
+      debug:
+        description: 'デバッグモード'
+        required: false
+        type: boolean
+        default: false
 
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+jobs:
+  display-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display workflow inputs
+        uses: VeyronSakai/display-inputs-action@v1
 ```
 
-For example workflow runs, check out the
-[Actions tab](https://github.com/actions/typescript-action/actions)! :rocket:
+このアクションは GitHub
+API を使用してワークフローファイルを取得するため、`actions/checkout`
+は不要です。 `GITHUB_TOKEN` は自動的に提供されます。
 
-## Usage
+### 実行結果
 
-After testing, you can create version tag(s) that developers can use to
-reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
+このアクションを実行すると、Job Summary に以下のようなテーブルが表示されます:
 
-To include the action in a workflow in another repository, you can use the
-`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
-hash.
+| Description    | Value      |
+| -------------- | ---------- |
+| デプロイ環境   | production |
+| バージョン番号 | 1.2.3      |
+| デバッグモード | true       |
 
-```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
+## 出力例
 
-  - name: Test Local Action
-    id: test-action
-    uses: actions/typescript-action@v1 # Commit with the `v1` tag
-    with:
-      milliseconds: 1000
+### 入力がある場合
 
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+```markdown
+## Workflow Inputs
+
+| Description    | Value      |
+| -------------- | ---------- |
+| デプロイ環境   | production |
+| バージョン番号 | 1.2.3      |
+| デバッグモード | true       |
 ```
+
+### 入力がない場合
+
+```markdown
+## Workflow Inputs
+
+No inputs provided.
+```
+
+## 仕組み
+
+このアクションは以下の手順で動作します:
+
+1. GitHub Actions が自動的に設定する `INPUT_*` 環境変数から入力値を取得
+2. GitHub API を使用して `GITHUB_WORKFLOW_REF`
+   から現在のワークフローファイルを取得
+3. ワークフローファイルを解析して、各 input の `description` を取得
+4. Description と値をテーブル形式で Job Summary に表示
+
+ワークフローファイルの取得や解析に失敗した場合は、input 名を description として使用します。
+
+## アーキテクチャ
+
+このプロジェクトは **Onion Architecture (オニオンアーキテクチャ)**
+に基づいて設計されています。
+
+### ディレクトリ構造
+
+```text
+src/
+├── domains/                   # Domain Layer (中心層)
+│   ├── entities/             # エンティティ
+│   │   ├── InputInfo.ts      # 入力情報エンティティ
+│   │   └── WorkflowInfo.ts   # ワークフロー情報エンティティ
+│   ├── repositories/         # リポジトリインターフェース
+│   │   ├── IInputRepository.ts
+│   │   └── IWorkflowRepository.ts
+│   ├── services/             # ドメインサービスインターフェース
+│   │   └── IPresenter.ts
+│   └── value-objects/        # 値オブジェクト（将来の拡張用）
+├── use-cases/                # Application Layer (ユースケース層)
+│   └── DisplayInputsUseCase.ts  # 入力表示ユースケース
+├── infrastructures/          # Infrastructure Layer (外部層)
+│   ├── repositories/         # リポジトリ実装
+│   │   ├── EnvironmentInputRepository.ts
+│   │   └── GitHubApiWorkflowRepository.ts
+│   ├── parsers/             # パーサー
+│   │   └── WorkflowFileParser.ts
+│   └── presenters/          # プレゼンター
+│       └── JobSummaryPresenter.ts
+├── presentations/            # Presentation Layer (外部インターフェース層)
+│   └── actionHandler.ts     # GitHub Actions ハンドラー
+├── main.ts                   # エントリーポイント (DI コンテナ)
+└── index.ts                  # Action エントリーポイント
+```
+
+### 各層の役割
+
+- **Domain Layer**
+  (`domains/`): ビジネスロジックとエンティティを定義。他の層に依存しない
+- **Use Cases Layer**
+  (`use-cases/`): アプリケーション固有のビジネスルールを実装。Domain
+  Layer のみに依存
+- **Infrastructure Layer** (`infrastructures/`): 外部システム (GitHub
+  API, 環境変数) との連携を実装
+- **Presentation Layer** (`presentations/`): 外部インターフェース (GitHub
+  Actions) とのやり取りを担当
+
+### パスエイリアス
+
+コードの可読性と保守性を向上させるため、以下のパスエイリアスを使用しています：
+
+- `@domains/*` → `src/domains/*`
+- `@use-cases/*` → `src/use-cases/*`
+- `@infrastructures/*` → `src/infrastructures/*`
+- `@presentations/*` → `src/presentations/*`
+
+この設計により、テスタビリティが高く、保守性の高いコードベースを実現しています。
+
+## 開発
+
+### セットアップ
+
+```bash
+npm install
+```
+
+### テスト
+
+```bash
+npm test
+```
+
+### ビルド
+
+```bash
+npm run bundle
+```
+
+### フォーマット
+
+```bash
+npm run format:write
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## ライセンス
+
+MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
+
+## 作者
+
+Yuki Sakai

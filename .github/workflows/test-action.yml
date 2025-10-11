@@ -1,0 +1,44 @@
+name: Test Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+        default: development
+      version:
+        description: 'Version Number'
+        required: true
+        type: string
+      enable-debug:
+        description: 'Enable Debug Mode'
+        required: false
+        type: boolean
+        default: false
+      log-level:
+        description: 'Log Level'
+        required: false
+        type: choice
+        options:
+          - info
+          - warn
+          - error
+          - debug
+        default: info
+      notes:
+        description: 'Additional Notes'
+        required: false
+        type: string
+
+jobs:
+  test-display-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display workflow inputs
+        uses: ./

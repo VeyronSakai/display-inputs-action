@@ -1,25 +1,36 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import { ActionHandler } from '@presentations/actionHandler.js'
+import { DisplayInputsUseCase } from '@use-cases/DisplayInputsUseCase.js'
+import { EnvironmentInputRepository } from '@infrastructures/repositories/EnvironmentInputRepository.js'
+import { GitHubApiWorkflowRepository } from '@infrastructures/repositories/GitHubApiWorkflowRepository.js'
+import { WorkflowFileParser } from '@infrastructures/parsers/WorkflowFileParser.js'
+import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRepository.js'
 
 /**
  * The main function for the action.
+ * Assembles and executes each layer based on Onion Architecture
  *
  * @returns Resolves when the action is complete.
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    // Create Infrastructure layer instances
+    const inputRepository = new EnvironmentInputRepository()
+    const parser = new WorkflowFileParser()
+    const token = process.env.GITHUB_TOKEN || ''
+    const workflowRepository = new GitHubApiWorkflowRepository(token, parser)
+    const jobSummaryRepository = new JobSummaryRepository()
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    // Create Application layer use case
+    const useCase = new DisplayInputsUseCase(
+      inputRepository,
+      workflowRepository,
+      jobSummaryRepository
+    )
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    // Create and execute Presentation layer handler
+    const actionHandler = new ActionHandler(useCase)
+    await actionHandler.run()
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)

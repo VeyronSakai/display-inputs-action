@@ -8,3 +8,13 @@ export const getInput = jest.fn<typeof core.getInput>()
 export const setOutput = jest.fn<typeof core.setOutput>()
 export const setFailed = jest.fn<typeof core.setFailed>()
 export const warning = jest.fn<typeof core.warning>()
+
+// Mock summary object
+const summaryMock = {
+  addHeading: jest.fn().mockReturnThis(),
+  addTable: jest.fn().mockReturnThis(),
+  addRaw: jest.fn().mockReturnThis(),
+  write: jest.fn<() => Promise<unknown>>().mockResolvedValue({})
+}
+
+export const summary = summaryMock
