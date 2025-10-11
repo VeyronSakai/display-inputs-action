@@ -22,7 +22,11 @@ export async function run(): Promise<void> {
     }
 
     // Create Infrastructure layer instances
-    const token = process.env.GITHUB_TOKEN || ''
+    // Get token from action input (which defaults to github.token)
+    const token = core.getInput('github-token') || process.env.GITHUB_TOKEN || ''
+    if (!token) {
+      throw new Error('GitHub token is required. Please provide it via github-token input or GITHUB_TOKEN environment variable.')
+    }
     const workflowRepository = new WorkflowRepositoryImpl(token)
     const jobSummaryRepository = new JobSummaryRepositoryImpl()
 

@@ -7,6 +7,12 @@ branding:
   icon: list
   color: blue
 
+inputs:
+  github-token:
+    description: 'GitHub token for accessing workflow information'
+    required: false
+    default: ${{ github.token }}
+
 runs:
   using: node20
   main: dist/index.js

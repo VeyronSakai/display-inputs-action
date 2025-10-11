@@ -34144,15 +34144,18 @@ class WorkflowRepositoryImpl {
         try {
             const workflowRef = process.env.GITHUB_WORKFLOW_REF;
             if (!workflowRef) {
+                console.error('GITHUB_WORKFLOW_REF environment variable is not set');
                 return null;
             }
             // GITHUB_WORKFLOW_REF format: owner/repo/.github/workflows/workflow.yml@refs/heads/branch
             const match = workflowRef.match(/([^/]+)\/([^/]+)\/\.github\/workflows\/([^@]+)@(.+)/);
             if (!match) {
+                console.error(`Invalid GITHUB_WORKFLOW_REF format: ${workflowRef}`);
                 return null;
             }
             const [, owner, repo, workflowFileName, ref] = match;
             const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '');
+            console.log(`Fetching workflow info for ${owner}/${repo}, workflow: ${workflowFileName}, ref: ${refName}`);
             // Get workflow file from GitHub API
             const octokit = githubExports.getOctokit(this.token);
             const response = await octokit.rest.repos.getContent({
@@ -34163,6 +34166,7 @@ class WorkflowRepositoryImpl {
             });
             // Extract content from response
             if (!('content' in response.data)) {
+                console.error('No content found in GitHub API response');
                 return null;
             }
             const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
@@ -34176,8 +34180,13 @@ class WorkflowRepositoryImpl {
                 inputs
             };
         }
-        catch {
-            // Return null if an error occurs
+        catch (error) {
+            // Log error details for debugging
+            console.error('Error fetching workflow info:', error);
+            if (error instanceof Error) {
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+            }
             return null;
         }
     }
@@ -34199,8 +34208,9 @@ class WorkflowRepositoryImpl {
             }
             return inputMap;
         }
-        catch {
-            // Return empty Map if parse error occurs
+        catch (error) {
+            // Log parse error for debugging
+            console.error('Error parsing workflow YAML:', error);
             return new Map();
         }
     }
@@ -34242,7 +34252,11 @@ async function run() {
             return;
         }
         // Create Infrastructure layer instances
-        const token = process.env.GITHUB_TOKEN || '';
+        // Get token from action input (which defaults to github.token)
+        const token = coreExports.getInput('github-token') || process.env.GITHUB_TOKEN || '';
+        if (!token) {
+            throw new Error('GitHub token is required. Please provide it via github-token input or GITHUB_TOKEN environment variable.');
+        }
         const workflowRepository = new WorkflowRepositoryImpl(token);
         const jobSummaryRepository = new JobSummaryRepositoryImpl();
         // Fetch workflow info first
