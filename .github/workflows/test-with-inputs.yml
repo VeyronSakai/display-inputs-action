@@ -38,6 +38,10 @@ on:
         required: false
         type: string
 
+defaults:
+  run:
+    shell: pwsh
+
 jobs:
   test-display-inputs:
     runs-on: ubuntu-latest
@@ -51,3 +55,13 @@ jobs:
       - name: Display workflow inputs
         id: display-inputs
         uses: ./
+
+      - name: Print inputs
+        id: print-inputs
+        run: |
+          Write-Host "=== Workflow Inputs ==="
+          Write-Host "Environment: ${{ inputs.environment }}"
+          Write-Host "Version: ${{ inputs.version }}"
+          Write-Host "Enable Debug: ${{ inputs.enable-debug }}"
+          Write-Host "Log Level: ${{ inputs.log-level }}"
+          Write-Host "Notes: ${{ inputs.notes }}"
