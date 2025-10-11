@@ -91,7 +91,7 @@ describe('DisplayInputsUseCase', () => {
     const mockWorkflowInfo: WorkflowInfo = {
       owner: 'test-owner',
       repo: 'test-repo',
-      workflowFileName: 'no-inputs.yml',
+      workflowFileName: 'test-without-inputs.yml',
       ref: 'main',
       inputs: new Map()
     }

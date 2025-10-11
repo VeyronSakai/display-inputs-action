@@ -1,4 +1,4 @@
-name: Test Action
+name: Test Workflow with Inputs
 
 on:
   workflow_dispatch:

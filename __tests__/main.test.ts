@@ -27,12 +27,12 @@ jest.unstable_mockModule('@actions/github', () => ({
 // mocks are used in place of any actual dependencies.
 const { run } = await import('../src/main.js')
 
-// Get test-action.yml file path
+// Get test-with-inputs.yml file path
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const testActionFilePath = path.join(
   __dirname,
-  '../.github/workflows/test-action.yml'
+  '../.github/workflows/test-with-inputs.yml'
 )
 
 describe('main.ts', () => {
@@ -40,7 +40,7 @@ describe('main.ts', () => {
   let testActionContent: string
 
   beforeAll(() => {
-    // Load test-action.yml content
+    // Load test-with-inputs.yml content
     testActionContent = fs.readFileSync(testActionFilePath, 'utf-8')
   })
 
@@ -62,17 +62,17 @@ describe('main.ts', () => {
     process.env = originalEnv
   })
 
-  it('Displays inputs with descriptions from test-action.yml', async () => {
+  it('Displays inputs with descriptions from test-with-inputs.yml', async () => {
     // Set up environment
     process.env.GITHUB_TOKEN = 'fake-token'
     process.env.GITHUB_WORKFLOW_REF =
-      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
+      'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
     process.env.INPUT_ENVIRONMENT = 'production'
     process.env.INPUT_VERSION = '1.2.3'
     process.env.INPUT_ENABLE_DEBUG = 'true'
     process.env.INPUT_LOG_LEVEL = 'debug'
 
-    // Mock GitHub API response with actual test-action.yml content
+    // Mock GitHub API response with actual test-with-inputs.yml content
     mockGetContent.mockResolvedValue({
       data: {
         content: Buffer.from(testActionContent).toString('base64')
@@ -86,11 +86,11 @@ describe('main.ts', () => {
     expect(mockGetContent).toHaveBeenCalledWith({
       owner: 'owner',
       repo: 'repo',
-      path: '.github/workflows/test-action.yml',
+      path: '.github/workflows/test-with-inputs.yml',
       ref: 'main'
     })
 
-    // Verify that summary methods were called with descriptions from test-action.yml
+    // Verify that summary methods were called with descriptions from test-with-inputs.yml
     expect(core.summary.addHeading).toHaveBeenCalledWith('Workflow Inputs', 2)
     expect(core.summary.addTable).toHaveBeenCalledWith([
       ['Description', 'Value'],
@@ -111,7 +111,7 @@ describe('main.ts', () => {
     process.env.INPUT_ENVIRONMENT = 'production'
     process.env.GITHUB_TOKEN = 'fake-token'
     process.env.GITHUB_WORKFLOW_REF =
-      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
+      'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
 
     // Mock API to fail
     mockGetContent.mockRejectedValue(new Error('API Error'))
@@ -128,10 +128,10 @@ describe('main.ts', () => {
     // Set up environment with token but no inputs
     process.env.GITHUB_TOKEN = 'fake-token'
     process.env.GITHUB_WORKFLOW_REF =
-      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
+      'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
     // No INPUT_ environment variables set
 
-    // Mock GitHub API response with test-action.yml content
+    // Mock GitHub API response with test-with-inputs.yml content
     mockGetContent.mockResolvedValue({
       data: {
         content: Buffer.from(testActionContent).toString('base64')
@@ -151,7 +151,7 @@ describe('main.ts', () => {
     // Set up environment
     process.env.GITHUB_TOKEN = 'fake-token'
     process.env.GITHUB_WORKFLOW_REF =
-      'owner/repo/.github/workflows/test-action.yml@refs/heads/main'
+      'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
 
     // Mock GitHub API response
     mockGetContent.mockResolvedValue({
