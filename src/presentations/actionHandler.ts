@@ -3,7 +3,7 @@ import { DisplayInputsUseCase } from '@use-cases/displayInputsUseCase.js'
 
 /**
  * Presentation Layer: GitHub Actions Handler
- * GitHub Actions との連携を担当
+ * Responsible for integration with GitHub Actions.
  */
 export class ActionHandler {
   constructor(private useCase: DisplayInputsUseCase) {}
