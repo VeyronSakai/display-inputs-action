@@ -21,6 +21,12 @@ export default {
   // },
   extensionsToTreatAsEsm: ['.ts'],
   moduleFileExtensions: ['ts', 'js'],
+  moduleNameMapper: {
+    '^@domains/(.*)$': '<rootDir>/src/domains/$1',
+    '^@use-cases/(.*)$': '<rootDir>/src/use-cases/$1',
+    '^@infrastructures/(.*)$': '<rootDir>/src/infrastructures/$1',
+    '^@presentations/(.*)$': '<rootDir>/src/presentations/$1'
+  },
   preset: 'ts-jest',
   reporters: ['default'],
   resolver: 'ts-jest-resolver',

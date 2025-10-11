@@ -1,0 +1,20 @@
+name: Test Workflow without Inputs
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Test step
+        id: test-step
+        run: echo "This workflow has no inputs"

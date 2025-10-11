@@ -60,11 +60,3 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
-        with:
-          milliseconds: 2000
-
-      - name: Print Output
-        id: output
-        env:
-          ACTION_TIME: ${{ steps.test-action.outputs.time }}
-        run: echo "$ACTION_TIME"
