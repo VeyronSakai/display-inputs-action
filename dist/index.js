@@ -34152,9 +34152,7 @@ class WorkflowRepositoryImpl {
                 return null;
             }
             const [, owner, repo, workflowFileName, ref] = match;
-            const refName = ref
-                .replace(/^refs\/heads\//, '')
-                .replace(/^refs\/tags\//, '');
+            const refName = ref.replace(/^refs\/heads\//, '').replace(/^refs\/tags\//, '');
             // Get workflow file from GitHub API
             const octokit = githubExports.getOctokit(this.token);
             const response = await octokit.rest.repos.getContent({
@@ -34215,10 +34213,7 @@ class WorkflowRepositoryImpl {
 class JobSummaryRepositoryImpl {
     async saveInputs(inputs) {
         if (!inputs || inputs.length === 0) {
-            await coreExports.summary
-                .addHeading('Workflow Inputs', 2)
-                .addRaw('No inputs provided.')
-                .write();
+            await coreExports.summary.addHeading('Workflow Inputs', 2).addRaw('No inputs provided.').write();
             coreExports.info('No workflow_dispatch inputs found.');
             return;
         }
@@ -34226,10 +34221,7 @@ class JobSummaryRepositoryImpl {
         for (const input of inputs) {
             tableData.push([input.description, input.value]);
         }
-        await coreExports.summary
-            .addHeading('Workflow Inputs', 2)
-            .addTable(tableData)
-            .write();
+        await coreExports.summary.addHeading('Workflow Inputs', 2).addTable(tableData).write();
         coreExports.info(`Displayed ${inputs.length} input(s) in Job Summary`);
     }
 }
