@@ -53,11 +53,11 @@ This action fetches the workflow file using GitHub API, so `actions/checkout` is
 
 When you run this action, a table like the following will be displayed in the Job Summary:
 
-| Description            | Value      |
-| ---------------------- | ---------- |
-| Deployment Environment | production |
-| Version Number         | 1.2.3      |
-| Debug Mode             | true       |
+| Name        | Description            | Value      |
+| ----------- | ---------------------- | ---------- |
+| environment | Deployment Environment | production |
+| version     | Version Number         | 1.2.3      |
+| debug       | Debug Mode             | true       |
 
 ## License
 
