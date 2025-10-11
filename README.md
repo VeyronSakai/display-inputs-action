@@ -3,22 +3,21 @@
 [![CI](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml/badge.svg)](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-workflow_dispatch で実行された GitHub
-Actions ワークフローの入力値を、GitHub の Job
-Summary にテーブル形式で表示する TypeScript ベースの Action です。
+A TypeScript-based GitHub Action that displays workflow_dispatch input values
+in a table format on GitHub Job Summary.
 
-## 機能
+## Features
 
-- workflow_dispatch の inputs を自動的に取得
-- GitHub API を使用してワークフローファイルから description を取得
-- Job Summary に見やすいテーブル形式で表示
-- 入力が無い場合の適切なメッセージ表示
-- TypeScript で実装され、完全にテスト済み
-- `actions/checkout` 不要 - GitHub API を使用してファイルを取得
+- Automatically retrieves workflow_dispatch inputs
+- Fetches input descriptions from workflow files using GitHub API
+- Displays inputs in an easy-to-read table format on Job Summary
+- Shows appropriate messages when no inputs are provided
+- Fully implemented and tested in TypeScript
+- No `actions/checkout` required - fetches files via GitHub API
 
-## 使用方法
+## Usage
 
-### 基本的な使い方
+### Basic Example
 
 ```yaml
 name: Display Workflow Inputs
@@ -27,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'デプロイ環境'
+        description: 'Deployment Environment'
         required: true
         type: choice
         options:
@@ -35,11 +34,11 @@ on:
           - staging
           - production
       version:
-        description: 'バージョン番号'
+        description: 'Version Number'
         required: true
         type: string
       debug:
-        description: 'デバッグモード'
+        description: 'Debug Mode'
         required: false
         type: boolean
         default: false
@@ -52,35 +51,35 @@ jobs:
         uses: VeyronSakai/display-inputs-action@v1
 ```
 
-このアクションは GitHub
-API を使用してワークフローファイルを取得するため、`actions/checkout`
-は不要です。 `GITHUB_TOKEN` は自動的に提供されます。
+This action fetches the workflow file using GitHub API, so `actions/checkout`
+is not required. The `GITHUB_TOKEN` is automatically provided.
 
-### 実行結果
+### Output Example
 
-このアクションを実行すると、Job Summary に以下のようなテーブルが表示されます:
+When you run this action, a table like the following will be displayed in the
+Job Summary:
 
-| Description    | Value      |
-| -------------- | ---------- |
-| デプロイ環境   | production |
-| バージョン番号 | 1.2.3      |
-| デバッグモード | true       |
+| Description            | Value      |
+| ---------------------- | ---------- |
+| Deployment Environment | production |
+| Version Number         | 1.2.3      |
+| Debug Mode             | true       |
 
-## 出力例
+## Display Examples
 
-### 入力がある場合
+### With Inputs
 
 ```markdown
 ## Workflow Inputs
 
-| Description    | Value      |
-| -------------- | ---------- |
-| デプロイ環境   | production |
-| バージョン番号 | 1.2.3      |
-| デバッグモード | true       |
+| Description            | Value      |
+| ---------------------- | ---------- |
+| Deployment Environment | production |
+| Version Number         | 1.2.3      |
+| Debug Mode             | true       |
 ```
 
-### 入力がない場合
+### Without Inputs
 
 ```markdown
 ## Workflow Inputs
@@ -88,97 +87,98 @@ API を使用してワークフローファイルを取得するため、`action
 No inputs provided.
 ```
 
-## 仕組み
+## How It Works
 
-このアクションは以下の手順で動作します:
+This action operates through the following steps:
 
-1. GitHub Actions が自動的に設定する `INPUT_*` 環境変数から入力値を取得
-2. GitHub API を使用して `GITHUB_WORKFLOW_REF`
-   から現在のワークフローファイルを取得
-3. ワークフローファイルを解析して、各 input の `description` を取得
-4. Description と値をテーブル形式で Job Summary に表示
+1. Retrieves input values from `INPUT_*` environment variables automatically
+   set by GitHub Actions
+2. Fetches the current workflow file from `GITHUB_WORKFLOW_REF` using GitHub
+   API
+3. Parses the workflow file to extract the `description` for each input
+4. Displays descriptions and values in a table format on Job Summary
 
-ワークフローファイルの取得や解析に失敗した場合は、input 名を description として使用します。
+If fetching or parsing the workflow file fails, the input name will be used as
+the description.
 
-## アーキテクチャ
+## Architecture
 
-このプロジェクトは **Onion Architecture (オニオンアーキテクチャ)**
-に基づいて設計されています。
+This project is designed based on **Onion Architecture**.
 
-### ディレクトリ構造
+### Directory Structure
 
 ```text
 src/
-├── domains/                   # Domain Layer (中心層)
-│   ├── entities/             # エンティティ
-│   │   ├── InputInfo.ts      # 入力情報エンティティ
-│   │   └── WorkflowInfo.ts   # ワークフロー情報エンティティ
-│   ├── repositories/         # リポジトリインターフェース
+├── domains/                   # Domain Layer (Core)
+│   ├── entities/             # Entities
+│   │   ├── InputInfo.ts      # Input information entity
+│   │   └── WorkflowInfo.ts   # Workflow information entity
+│   ├── repositories/         # Repository interfaces
 │   │   ├── IInputRepository.ts
 │   │   └── IWorkflowRepository.ts
-│   ├── services/             # ドメインサービスインターフェース
+│   ├── services/             # Domain service interfaces
 │   │   └── IPresenter.ts
-│   └── value-objects/        # 値オブジェクト（将来の拡張用）
-├── use-cases/                # Application Layer (ユースケース層)
-│   └── DisplayInputsUseCase.ts  # 入力表示ユースケース
-├── infrastructures/          # Infrastructure Layer (外部層)
-│   ├── repositories/         # リポジトリ実装
+│   └── value-objects/        # Value objects (for future extension)
+├── use-cases/                # Application Layer (Use Cases)
+│   └── DisplayInputsUseCase.ts  # Display inputs use case
+├── infrastructures/          # Infrastructure Layer (External)
+│   ├── repositories/         # Repository implementations
 │   │   ├── EnvironmentInputRepository.ts
 │   │   └── GitHubApiWorkflowRepository.ts
-│   ├── parsers/             # パーサー
+│   ├── parsers/             # Parsers
 │   │   └── WorkflowFileParser.ts
-│   └── presenters/          # プレゼンター
+│   └── presenters/          # Presenters
 │       └── JobSummaryPresenter.ts
-├── presentations/            # Presentation Layer (外部インターフェース層)
-│   └── actionHandler.ts     # GitHub Actions ハンドラー
-├── main.ts                   # エントリーポイント (DI コンテナ)
-└── index.ts                  # Action エントリーポイント
+├── presentations/            # Presentation Layer (External Interface)
+│   └── actionHandler.ts     # GitHub Actions handler
+├── main.ts                   # Entry point (DI Container)
+└── index.ts                  # Action entry point
 ```
 
-### 各層の役割
+### Layer Responsibilities
 
-- **Domain Layer**
-  (`domains/`): ビジネスロジックとエンティティを定義。他の層に依存しない
-- **Use Cases Layer**
-  (`use-cases/`): アプリケーション固有のビジネスルールを実装。Domain
-  Layer のみに依存
-- **Infrastructure Layer** (`infrastructures/`): 外部システム (GitHub
-  API, 環境変数) との連携を実装
-- **Presentation Layer** (`presentations/`): 外部インターフェース (GitHub
-  Actions) とのやり取りを担当
+- **Domain Layer** (`domains/`): Defines business logic and entities.
+  Independent of other layers
+- **Use Cases Layer** (`use-cases/`): Implements application-specific business
+  rules. Depends only on Domain Layer
+- **Infrastructure Layer** (`infrastructures/`): Implements integration with
+  external systems (GitHub API, environment variables)
+- **Presentation Layer** (`presentations/`): Handles interactions with external
+  interfaces (GitHub Actions)
 
-### パスエイリアス
+### Path Aliases
 
-コードの可読性と保守性を向上させるため、以下のパスエイリアスを使用しています：
+To improve code readability and maintainability, the following path aliases are
+used:
 
 - `@domains/*` → `src/domains/*`
 - `@use-cases/*` → `src/use-cases/*`
 - `@infrastructures/*` → `src/infrastructures/*`
 - `@presentations/*` → `src/presentations/*`
 
-この設計により、テスタビリティが高く、保守性の高いコードベースを実現しています。
+This design achieves a highly testable and maintainable codebase.
 
-## 開発
+## Development
 
-### セットアップ
+### Setup
 
 ```bash
 npm install
 ```
 
-### テスト
+### Test
 
 ```bash
 npm test
 ```
 
-### ビルド
+### Build
 
 ```bash
 npm run bundle
 ```
 
-### フォーマット
+### Format
 
 ```bash
 npm run format:write
@@ -190,10 +190,10 @@ npm run format:write
 npm run lint
 ```
 
-## ライセンス
+## License
 
-MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
+MIT License - See [LICENSE](LICENSE) for details.
 
-## 作者
+## Author
 
 Yuki Sakai
