@@ -34262,9 +34262,9 @@ class JobSummaryRepositoryImpl {
             coreExports.info('No workflow_dispatch inputs found.');
             return;
         }
-        const tableData = [['Description', 'Value']];
+        const tableData = [['Name', 'Description', 'Value']];
         for (const input of inputs) {
-            tableData.push([input.description, input.value]);
+            tableData.push([input.name, input.description, input.value]);
         }
         await coreExports.summary.addHeading('Workflow Inputs', 2).addTable(tableData).write();
         coreExports.info(`Displayed ${inputs.length} input(s) in Job Summary`);
