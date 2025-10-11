@@ -34152,7 +34152,9 @@ class GitHubApiWorkflowRepository {
                 return null;
             }
             const [, owner, repo, workflowFileName, ref] = match;
-            const refName = ref.replace('refs/heads/', '').replace('refs/tags/', '');
+            const refName = ref
+                .replace(/^refs\/heads\//, '')
+                .replace(/^refs\/tags\//, '');
             // Get workflow file from GitHub API
             const octokit = githubExports.getOctokit(this.token);
             const response = await octokit.rest.repos.getContent({
