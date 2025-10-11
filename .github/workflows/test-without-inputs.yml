@@ -1,4 +1,6 @@
 name: Test Workflow without Inputs
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
