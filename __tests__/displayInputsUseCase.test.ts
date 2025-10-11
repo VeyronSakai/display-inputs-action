@@ -1,40 +1,34 @@
 /**
  * Unit tests for DisplayInputsUseCase
  */
-import { jest } from '@jest/globals'
 import { DisplayInputsUseCase } from '../src/use-cases/displayInputsUseCase.js'
-import type { IInputRepository } from '../src/domains/repositories/inputRepository.js'
-import type { IWorkflowRepository } from '../src/domains/repositories/workflowRepository.js'
-import type { IJobSummaryRepository } from '../src/domains/repositories/jobSummaryRepository.js'
+import { StubInputRepository } from './test-doubles/repositories/stubInputRepository.js'
+import { StubWorkflowRepository } from './test-doubles/repositories/stubWorkflowRepository.js'
+import { SpyJobSummaryRepository } from './test-doubles/repositories/spyJobSummaryRepository.js'
 import type { InputInfo } from '../src/domains/value-objects/inputInfo.js'
 import type { WorkflowInfo } from '../src/domains/value-objects/workflowInfo.js'
 
 describe('DisplayInputsUseCase', () => {
-  let mockInputRepository: jest.Mocked<IInputRepository>
-  let mockWorkflowRepository: jest.Mocked<IWorkflowRepository>
-  let mockJobSummaryRepository: jest.Mocked<IJobSummaryRepository>
+  let inputRepository: StubInputRepository
+  let workflowRepository: StubWorkflowRepository
+  let jobSummaryRepository: SpyJobSummaryRepository
   let useCase: DisplayInputsUseCase
 
   beforeEach(() => {
-    // Create mock repositories
-    mockInputRepository = {
-      fetchInputs: jest.fn<() => InputInfo[]>()
-    }
+    // Create test double instances
+    inputRepository = new StubInputRepository()
+    workflowRepository = new StubWorkflowRepository()
+    jobSummaryRepository = new SpyJobSummaryRepository()
 
-    mockWorkflowRepository = {
-      fetchWorkflowInfo: jest.fn<() => Promise<WorkflowInfo | null>>()
-    }
-
-    mockJobSummaryRepository = {
-      saveInputs: jest.fn<(inputs: InputInfo[] | null) => Promise<void>>()
-    }
-
-    // Create use case instance
-    useCase = new DisplayInputsUseCase(mockInputRepository, mockWorkflowRepository, mockJobSummaryRepository)
+    // Create use case instance with test doubles
+    useCase = new DisplayInputsUseCase(inputRepository, workflowRepository, jobSummaryRepository)
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    // Reset all test doubles to their initial state
+    inputRepository.reset()
+    workflowRepository.reset()
+    jobSummaryRepository.reset()
   })
 
   it('should save inputs when workflow info and inputs are available', async () => {
@@ -63,24 +57,28 @@ describe('DisplayInputsUseCase', () => {
       }
     ]
 
-    mockWorkflowRepository.fetchWorkflowInfo.mockResolvedValue(mockWorkflowInfo)
-    mockInputRepository.fetchInputs.mockReturnValue(mockInputs)
+    // Configure test doubles
+    workflowRepository.setWorkflowInfo(mockWorkflowInfo)
+    inputRepository.setInputs(mockInputs)
 
+    // Execute the use case
     await useCase.execute()
 
-    expect(mockWorkflowRepository.fetchWorkflowInfo).toHaveBeenCalledTimes(1)
-    expect(mockInputRepository.fetchInputs).toHaveBeenCalledTimes(1)
-    expect(mockJobSummaryRepository.saveInputs).toHaveBeenCalledWith(mockInputs)
+    // Verify the results
+    expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
+    expect(jobSummaryRepository.verifySavedInputs(mockInputs)).toBe(true)
   })
 
   it('should save null when workflow info is not available', async () => {
-    mockWorkflowRepository.fetchWorkflowInfo.mockResolvedValue(null)
+    // Configure test double to return null
+    workflowRepository.setWorkflowInfo(null)
 
+    // Execute the use case
     await useCase.execute()
 
-    expect(mockWorkflowRepository.fetchWorkflowInfo).toHaveBeenCalledTimes(1)
-    expect(mockInputRepository.fetchInputs).not.toHaveBeenCalled()
-    expect(mockJobSummaryRepository.saveInputs).toHaveBeenCalledWith(null)
+    // Verify the results
+    expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
+    expect(jobSummaryRepository.verifySavedInputs(null)).toBe(true)
   })
 
   it('should save null when workflow info is available but no inputs exist', async () => {
@@ -92,14 +90,16 @@ describe('DisplayInputsUseCase', () => {
       inputs: new Map()
     }
 
-    mockWorkflowRepository.fetchWorkflowInfo.mockResolvedValue(mockWorkflowInfo)
-    mockInputRepository.fetchInputs.mockReturnValue([])
+    // Configure test doubles
+    workflowRepository.setWorkflowInfo(mockWorkflowInfo)
+    inputRepository.setInputs([])
 
+    // Execute the use case
     await useCase.execute()
 
-    expect(mockWorkflowRepository.fetchWorkflowInfo).toHaveBeenCalledTimes(1)
-    expect(mockInputRepository.fetchInputs).toHaveBeenCalledTimes(1)
-    expect(mockJobSummaryRepository.saveInputs).toHaveBeenCalledWith(null)
+    // Verify the results
+    expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
+    expect(jobSummaryRepository.verifySavedInputs(null)).toBe(true)
   })
 
   it('should save multiple inputs correctly', async () => {
@@ -121,14 +121,16 @@ describe('DisplayInputsUseCase', () => {
       { name: 'debug', value: 'true', description: 'Debug Mode' }
     ]
 
-    mockWorkflowRepository.fetchWorkflowInfo.mockResolvedValue(mockWorkflowInfo)
-    mockInputRepository.fetchInputs.mockReturnValue(mockInputs)
+    // Configure test doubles
+    workflowRepository.setWorkflowInfo(mockWorkflowInfo)
+    inputRepository.setInputs(mockInputs)
 
+    // Execute the use case
     await useCase.execute()
 
-    expect(mockWorkflowRepository.fetchWorkflowInfo).toHaveBeenCalledTimes(1)
-    expect(mockInputRepository.fetchInputs).toHaveBeenCalledTimes(1)
-    expect(mockJobSummaryRepository.saveInputs).toHaveBeenCalledWith(mockInputs)
+    // Verify the results
+    expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
+    expect(jobSummaryRepository.verifySavedInputs(mockInputs)).toBe(true)
   })
 
   it('should handle workflow info with inputs defined but no values provided', async () => {
@@ -150,13 +152,14 @@ describe('DisplayInputsUseCase', () => {
     }
 
     // No inputs provided (environment variables not set)
-    mockWorkflowRepository.fetchWorkflowInfo.mockResolvedValue(mockWorkflowInfo)
-    mockInputRepository.fetchInputs.mockReturnValue([])
+    workflowRepository.setWorkflowInfo(mockWorkflowInfo)
+    inputRepository.setInputs([])
 
+    // Execute the use case
     await useCase.execute()
 
-    expect(mockWorkflowRepository.fetchWorkflowInfo).toHaveBeenCalledTimes(1)
-    expect(mockInputRepository.fetchInputs).toHaveBeenCalledTimes(1)
-    expect(mockJobSummaryRepository.saveInputs).toHaveBeenCalledWith(null)
+    // Verify the results
+    expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
+    expect(jobSummaryRepository.verifySavedInputs(null)).toBe(true)
   })
 })
