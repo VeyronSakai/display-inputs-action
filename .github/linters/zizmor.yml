@@ -1,6 +1,0 @@
-rules:
-  unpinned-uses:
-    ignore:
-      # Ignore unpinned uses in test workflows since they test our own action
-      - test-with-inputs.yml:53
-      - test-without-inputs.yml:20
