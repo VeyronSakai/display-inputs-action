@@ -3,8 +3,8 @@
 [![CI](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml/badge.svg)](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-A TypeScript-based GitHub Action that displays workflow_dispatch input values
-in a table format on GitHub Job Summary.
+A TypeScript-based GitHub Action that displays workflow_dispatch input values in
+a table format on GitHub Job Summary.
 
 ## Features
 
@@ -51,8 +51,8 @@ jobs:
         uses: VeyronSakai/display-inputs-action@v1
 ```
 
-This action fetches the workflow file using GitHub API, so `actions/checkout`
-is not required. The `GITHUB_TOKEN` is automatically provided.
+This action fetches the workflow file using GitHub API, so `actions/checkout` is
+not required. The `GITHUB_TOKEN` is automatically provided.
 
 ### Output Example
 
@@ -91,10 +91,9 @@ No inputs provided.
 
 This action operates through the following steps:
 
-1. Retrieves input values from `INPUT_*` environment variables automatically
-   set by GitHub Actions
-2. Fetches the current workflow file from `GITHUB_WORKFLOW_REF` using GitHub
-   API
+1. Retrieves input values from `INPUT_*` environment variables automatically set
+   by GitHub Actions
+2. Fetches the current workflow file from `GITHUB_WORKFLOW_REF` using GitHub API
 3. Parses the workflow file to extract the `description` for each input
 4. Displays descriptions and values in a table format on Job Summary
 
