@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Display workflow inputs
-        uses: VeyronSakai/display-inputs-action@v1
+        uses: VeyronSakai/display-inputs-action@v0.1
 ```
 
 This action fetches the workflow file using GitHub API, so `actions/checkout` is not required. The `GITHUB_TOKEN` is automatically provided.
