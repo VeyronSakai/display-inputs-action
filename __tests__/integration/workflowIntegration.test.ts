@@ -97,15 +97,27 @@ describe('Workflow Integration Tests', () => {
     })
 
     it('should handle workflow with inputs using actual repository implementations', async () => {
+      // Create a temporary event payload file
+      const tempDir = fs.mkdtempSync(path.join(__dirname, 'temp-'))
+      const eventPath = path.join(tempDir, 'event.json')
+
+      const eventPayload = {
+        inputs: {
+          'environment': 'production',
+          'version': '2.0.1',
+          'enable-debug': 'true',
+          'log-level': 'debug',
+          'notes': 'Test deployment'
+        }
+      }
+
+      fs.writeFileSync(eventPath, JSON.stringify(eventPayload))
+
       // Set up environment variables to simulate workflow_dispatch with inputs
       process.env.GITHUB_EVENT_NAME = 'workflow_dispatch'
       process.env.GITHUB_TOKEN = 'fake-token'
       process.env.GITHUB_WORKFLOW_REF = 'owner/repo/.github/workflows/test-with-inputs.yml@refs/heads/main'
-      process.env.INPUT_ENVIRONMENT = 'production'
-      process.env.INPUT_VERSION = '2.0.1'
-      process.env.INPUT_ENABLE_DEBUG = 'true'
-      process.env.INPUT_LOG_LEVEL = 'debug'
-      process.env.INPUT_NOTES = 'Test deployment'
+      process.env.GITHUB_EVENT_PATH = eventPath
 
       // Parse the actual workflow file
       const workflowPath = path.join(__dirname, '../../.github/workflows/test-with-inputs.yml')
@@ -156,13 +168,27 @@ describe('Workflow Integration Tests', () => {
         { name: 'log-level', value: 'debug', description: 'Log Level' },
         { name: 'notes', value: 'Test deployment', description: 'Additional Notes' }
       ])
+
+      // Clean up temp directory
+      fs.rmSync(tempDir, { recursive: true })
     })
 
     it('should handle workflow without inputs using actual repository implementations', async () => {
+      // Create a temporary event payload file
+      const tempDir = fs.mkdtempSync(path.join(__dirname, 'temp-'))
+      const eventPath = path.join(tempDir, 'event.json')
+
+      const eventPayload = {
+        inputs: {}
+      }
+
+      fs.writeFileSync(eventPath, JSON.stringify(eventPayload))
+
       // Set up environment variables for workflow without inputs
       process.env.GITHUB_EVENT_NAME = 'workflow_dispatch'
       process.env.GITHUB_TOKEN = 'fake-token'
       process.env.GITHUB_WORKFLOW_REF = 'owner/repo/.github/workflows/test-without-inputs.yml@refs/heads/main'
+      process.env.GITHUB_EVENT_PATH = eventPath
 
       const workflowInfo: WorkflowInfo = {
         owner: 'owner',
@@ -189,6 +215,9 @@ describe('Workflow Integration Tests', () => {
       // Verify null was saved (no inputs to display)
       expect(jobSummaryRepository.getSaveCallCount()).toBe(1)
       expect(jobSummaryRepository.getSavedInputs()).toBeNull()
+
+      // Clean up temp directory
+      fs.rmSync(tempDir, { recursive: true })
     })
   })
 })

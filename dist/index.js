@@ -1,6 +1,7 @@
 import require$$0 from 'os';
 import require$$0$1 from 'crypto';
-import require$$1 from 'fs';
+import * as require$$1 from 'fs';
+import require$$1__default from 'fs';
 import require$$1$5 from 'path';
 import require$$2$1 from 'http';
 import require$$3$1 from 'https';
@@ -255,7 +256,7 @@ function requireFileCommand () {
 	// We use any as a valid input type
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1);
+	const fs = __importStar(require$$1__default);
 	const os = __importStar(require$$0);
 	const utils_1 = requireUtils$3();
 	function issueFileCommand(command, message) {
@@ -25233,7 +25234,7 @@ function requireSummary () {
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
 		const os_1 = require$$0;
-		const fs_1 = require$$1;
+		const fs_1 = require$$1__default;
 		const { access, appendFile, writeFile } = fs_1.promises;
 		exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
 		exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
@@ -25625,7 +25626,7 @@ function requireIoUtil () {
 		var _a;
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-		const fs = __importStar(require$$1);
+		const fs = __importStar(require$$1__default);
 		const path = __importStar(require$$1$5);
 		_a = fs.promises
 		// export const {open} = 'fs'
@@ -27346,47 +27347,53 @@ class InputRepositoryImpl {
     }
     /**
      * Fetch inputs using correct names from workflow definition
-     * Converts input names to environment variable names and retrieves values
+     * For workflow_dispatch events, reads inputs from the GitHub event payload
      */
     fetchInputs() {
         const inputs = [];
-        // Debug: Log workflow info
-        coreExports.debug('=== Debug: Workflow Info ===');
-        coreExports.debug(`Number of inputs in workflow definition: ${this.workflowInfo.inputs.size}`);
-        for (const [name, def] of this.workflowInfo.inputs.entries()) {
-            coreExports.debug(`  Input: ${name} - Description: ${def.description || 'N/A'}`);
+        // Get inputs from GitHub event payload (for workflow_dispatch events)
+        const eventPath = process.env.GITHUB_EVENT_PATH;
+        if (!eventPath) {
+            coreExports.debug('GITHUB_EVENT_PATH not found');
+            return inputs;
         }
-        coreExports.debug('=== End Workflow Info ===');
-        // Debug: Log all INPUT_ environment variables
-        coreExports.debug('=== Debug: Environment Variables ===');
-        const inputEnvVars = Object.entries(process.env).filter(([key]) => key.startsWith('INPUT_'));
-        coreExports.debug(`Found ${inputEnvVars.length} INPUT_ environment variables:`);
-        for (const [key, value] of inputEnvVars) {
-            coreExports.debug(`  ${key}: ${value}`);
-        }
-        coreExports.debug('=== End Environment Variables ===');
-        // Iterate through workflow input definitions (these have correct names)
-        coreExports.debug('=== Debug: Mapping Inputs ===');
-        for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
-            // Convert input name to environment variable name
-            const envVarName = `INPUT_${inputName.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
-            coreExports.debug(`Mapping: "${inputName}" -> "${envVarName}"`);
-            const value = process.env[envVarName];
-            // Only include inputs that have values
-            if (value !== undefined) {
-                coreExports.debug(`  ✓ Found value: ${value}`);
-                inputs.push({
-                    name: inputName,
-                    value: value,
-                    description: inputDef.description || inputName
-                });
+        try {
+            // Read the event payload
+            const eventPayload = JSON.parse(require$$1.readFileSync(eventPath, 'utf8'));
+            coreExports.debug(`Event payload: ${JSON.stringify(eventPayload, null, 2)}`);
+            // For workflow_dispatch events, inputs are in the 'inputs' field
+            const eventInputs = eventPayload.inputs || {};
+            coreExports.debug('=== Debug: Event Inputs ===');
+            coreExports.debug(`Found ${Object.keys(eventInputs).length} inputs in event payload:`);
+            for (const [key, value] of Object.entries(eventInputs)) {
+                coreExports.debug(`  ${key}: ${value}`);
             }
-            else {
-                coreExports.debug(`  ✗ No value found (undefined)`);
+            coreExports.debug('=== End Event Inputs ===');
+            // Match inputs from event with workflow definitions
+            coreExports.debug('=== Debug: Mapping Inputs ===');
+            for (const [inputName, inputDef] of this.workflowInfo.inputs.entries()) {
+                coreExports.debug(`Looking for input: "${inputName}"`);
+                // The input name in the event payload should match exactly
+                const value = eventInputs[inputName];
+                if (value !== undefined && value !== null && value !== '') {
+                    coreExports.debug(`  ✓ Found value: ${value}`);
+                    inputs.push({
+                        name: inputName,
+                        value: String(value), // Ensure it's a string
+                        description: inputDef.description || inputName
+                    });
+                }
+                else {
+                    coreExports.debug(`  ✗ No value found or empty`);
+                }
             }
+            coreExports.debug('=== End Mapping ===');
+            coreExports.debug(`Total inputs found: ${inputs.length}`);
         }
-        coreExports.debug('=== End Mapping ===');
-        coreExports.debug(`Total inputs found: ${inputs.length}`);
+        catch (error) {
+            coreExports.debug(`Error reading event payload: ${error}`);
+            console.error('Failed to read GitHub event payload:', error);
+        }
         return inputs;
     }
 }
@@ -27402,7 +27409,7 @@ function requireContext () {
 	hasRequiredContext = 1;
 	Object.defineProperty(context, "__esModule", { value: true });
 	context.Context = void 0;
-	const fs_1 = require$$1;
+	const fs_1 = require$$1__default;
 	const os_1 = require$$0;
 	class Context {
 	    /**
