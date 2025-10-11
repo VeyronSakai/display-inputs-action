@@ -15,10 +15,7 @@ export class JobSummaryRepositoryImpl implements IJobSummaryRepository {
       return
     }
 
-    const tableData: string[][] = [
-      ['Name', 'Description', 'Value'],
-      ['---', '---', '---']
-    ]
+    const tableData: string[][] = [['**Name**', '**Description**', '**Value**']]
 
     for (const input of inputs) {
       tableData.push([input.name, input.description, input.value])
