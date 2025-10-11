@@ -1,4 +1,4 @@
-import { WorkflowInputDefinition } from './WorkflowInputDefinition.js'
+import { WorkflowInputDefinition } from './workflowInputDefinition.js'
 
 /**
  * Domain Value Object: Workflow Information

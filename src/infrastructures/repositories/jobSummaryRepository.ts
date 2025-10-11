@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
-import { InputInfo } from '@domains/value-objects/InputInfo.js'
-import { IJobSummaryRepository } from '@domains/repositories/IJobSummaryRepository.js'
+import { InputInfo } from '@domains/value-objects/inputInfo.js'
+import { IJobSummaryRepository } from '@domains/repositories/iJobSummaryRepository.js'
 
 /**
  * Infrastructure: Job Summary Repository

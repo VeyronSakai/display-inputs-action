@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { DisplayInputsUseCase } from '@use-cases/DisplayInputsUseCase.js'
+import { DisplayInputsUseCase } from '@use-cases/displayInputsUseCase.js'
 
 /**
  * Presentation Layer: GitHub Actions Handler

@@ -1,8 +1,8 @@
 import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
-import { WorkflowInfo } from '@domains/value-objects/WorkflowInfo.js'
-import { WorkflowInputDefinition } from '@domains/value-objects/WorkflowInputDefinition.js'
-import { IWorkflowRepository } from '@domains/repositories/IWorkflowRepository.js'
+import { WorkflowInfo } from '@domains/value-objects/workflowInfo.js'
+import { WorkflowInputDefinition } from '@domains/value-objects/workflowInputDefinition.js'
+import { IWorkflowRepository } from '@domains/repositories/iWorkflowRepository.js'
 
 type WorkflowDefinition = {
   on?: {

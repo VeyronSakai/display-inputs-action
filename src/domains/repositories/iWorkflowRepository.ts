@@ -1,4 +1,4 @@
-import { WorkflowInfo } from '../value-objects/WorkflowInfo.js'
+import { WorkflowInfo } from '../value-objects/workflowInfo.js'
 
 /**
  * Domain Repository Interface: Workflow Repository

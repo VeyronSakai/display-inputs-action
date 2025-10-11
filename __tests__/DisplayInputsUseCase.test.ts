@@ -2,12 +2,12 @@
  * Unit tests for DisplayInputsUseCase
  */
 import { jest } from '@jest/globals'
-import { DisplayInputsUseCase } from '../src/use-cases/DisplayInputsUseCase.js'
-import type { IInputRepository } from '../src/domains/repositories/IInputRepository.js'
-import type { IWorkflowRepository } from '../src/domains/repositories/IWorkflowRepository.js'
-import type { IJobSummaryRepository } from '../src/domains/repositories/IJobSummaryRepository.js'
-import type { InputInfo } from '../src/domains/value-objects/InputInfo.js'
-import type { WorkflowInfo } from '../src/domains/value-objects/WorkflowInfo.js'
+import { DisplayInputsUseCase } from '../src/use-cases/displayInputsUseCase.js'
+import type { IInputRepository } from '../src/domains/repositories/iInputRepository.js'
+import type { IWorkflowRepository } from '../src/domains/repositories/iWorkflowRepository.js'
+import type { IJobSummaryRepository } from '../src/domains/repositories/iJobSummaryRepository.js'
+import type { InputInfo } from '../src/domains/value-objects/inputInfo.js'
+import type { WorkflowInfo } from '../src/domains/value-objects/workflowInfo.js'
 
 describe('DisplayInputsUseCase', () => {
   let mockInputRepository: jest.Mocked<IInputRepository>

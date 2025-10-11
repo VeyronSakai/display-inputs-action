@@ -1,6 +1,6 @@
-import { InputInfo } from '@domains/value-objects/InputInfo.js'
-import { WorkflowInfo } from '@domains/value-objects/WorkflowInfo.js'
-import { IInputRepository } from '@domains/repositories/IInputRepository.js'
+import { InputInfo } from '@domains/value-objects/inputInfo.js'
+import { WorkflowInfo } from '@domains/value-objects/workflowInfo.js'
+import { IInputRepository } from '@domains/repositories/iInputRepository.js'
 
 /**
  * Repository for fetching inputs from workflow definition

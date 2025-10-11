@@ -1,4 +1,4 @@
-import { InputInfo } from '../value-objects/InputInfo.js'
+import { InputInfo } from '../value-objects/inputInfo.js'
 
 /**
  * Domain Repository Interface: Job Summary Repository

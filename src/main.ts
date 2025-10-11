@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import { ActionHandler } from '@presentations/actionHandler.js'
-import { DisplayInputsUseCase } from '@use-cases/DisplayInputsUseCase.js'
-import { WorkflowInputRepository } from '@infrastructures/repositories/WorkflowInputRepository.js'
-import { GitHubApiWorkflowRepository } from '@infrastructures/repositories/GitHubApiWorkflowRepository.js'
-import { JobSummaryRepository } from '@infrastructures/repositories/JobSummaryRepository.js'
+import { DisplayInputsUseCase } from '@use-cases/displayInputsUseCase.js'
+import { WorkflowInputRepository } from '@infrastructures/repositories/workflowInputRepository.js'
+import { GitHubApiWorkflowRepository } from '@infrastructures/repositories/gitHubApiWorkflowRepository.js'
+import { JobSummaryRepository } from '@infrastructures/repositories/jobSummaryRepository.js'
 
 /**
  * The main function for the action.
