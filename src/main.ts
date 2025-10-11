@@ -13,6 +13,16 @@ import { JobSummaryRepositoryImpl } from '@infrastructures/repositories/jobSumma
  */
 export async function run(): Promise<void> {
   try {
+    // Check if the workflow was triggered by workflow_dispatch
+    const eventName = process.env.GITHUB_EVENT_NAME
+    if (eventName !== 'workflow_dispatch') {
+      core.warning(
+        `This action is designed for workflow_dispatch events only. Current event: ${eventName}`
+      )
+      core.info('Skipping action execution.')
+      return
+    }
+
     // Create Infrastructure layer instances
     const token = process.env.GITHUB_TOKEN || ''
     const workflowRepository = new WorkflowRepositoryImpl(token)
