@@ -34262,7 +34262,10 @@ class JobSummaryRepositoryImpl {
             coreExports.info('No workflow_dispatch inputs found.');
             return;
         }
-        const tableData = [['Name', 'Description', 'Value']];
+        const tableData = [
+            ['Name', 'Description', 'Value'],
+            ['---', '---', '---']
+        ];
         for (const input of inputs) {
             tableData.push([input.name, input.description, input.value]);
         }
