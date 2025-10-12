@@ -9,7 +9,7 @@ A GitHub Action to display workflow_dispatch input values in a table format on G
 
 - Automatically retrieves workflow_dispatch inputs
 - Displays inputs in an easy-to-read table format on Job Summary
-- No `actions/checkout` required - fetches files via GitHub API
+- No `actions/checkout` required
 
 ---
 
