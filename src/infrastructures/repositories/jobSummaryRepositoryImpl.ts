@@ -19,6 +19,7 @@ export class JobSummaryRepositoryImpl implements IJobSummaryRepository {
 
     for (const input of inputs) {
       tableData.push([input.name, input.description, input.value])
+      core.info(`Input - Name: ${input.name}, Description: ${input.description}, Value: ${input.value}`)
     }
 
     await core.summary.addHeading('Workflow Inputs', 2).addTable(tableData).write()
