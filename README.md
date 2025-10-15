@@ -1,8 +1,5 @@
 # Display Inputs Action
 
-[![CI](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml/badge.svg)](https://github.com/VeyronSakai/display-inputs-action/actions/workflows/ci.yml)
-[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
-
 A GitHub Action to display workflow_dispatch input values in a table format on GitHub Job Summary.
 
 ## Features
