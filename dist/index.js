@@ -34265,6 +34265,7 @@ class JobSummaryRepositoryImpl {
         const tableData = [['Name', 'Description', 'Value']];
         for (const input of inputs) {
             tableData.push([input.name, input.description, input.value]);
+            coreExports.info(`Input - Name: ${input.name}, Description: ${input.description}, Value: ${input.value}`);
         }
         await coreExports.summary.addHeading('Workflow Inputs', 2).addTable(tableData).write();
         coreExports.info(`Displayed ${inputs.length} input(s) in Job Summary`);
